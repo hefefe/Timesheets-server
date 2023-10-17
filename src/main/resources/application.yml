@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/timesheets
+    username: admin
+    password: zaq1@WSX
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    changelog: classpath:db/changelog.yml
