@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/timesheets?serverTimezone=UTC&useSSL=false
+    username: admin
+    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.MySQL8Dialect
+          ddl-auto: update
+          show-sql: true
+  liquibase:
+    changelog: classpath:db/changelog.yml
+
+timesheets:
+  statistics:
+    time-interval: 60
+    overtime-pay-ratio: 1.5
+    holiday-pay-ratio: 2.0
+    working-days: 5
+  jwt:
+    accessTokenValidityTime: 600000000
+    accessTokenSecret: 'ACCESS_TOKEN_SECRET_TO_CHANGE'
+    refreshTokenValidityTime: 600000000
+    refreshTokenSecret: 'REFRESH_TOKEN_SECRET_TO_CHANGE'
+    appNAme: 'timesheets'
+
+logging:
+  level:
+    org:
+      springframework:
+        web: debug
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

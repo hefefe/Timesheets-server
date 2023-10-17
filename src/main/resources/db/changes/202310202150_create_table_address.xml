@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="CREATE TABLE ADDRESS" author="witczakm">
+        <createTable tableName="ADDRESS">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="street_name" type="varchar(50)"/>
+            <column name="city" type="varchar(50)"/>
+            <column name="home_number" type="varchar(50)"/>
+            <column name="zip_code" type="varchar(50)"/>
+            <column name="country_id" type="bigint">
+                <constraints references="COUNTRY(id)"
+                             foreignKeyName="FK_ADDRESS_COUNTRY"/>
+            </column>
+        </createTable>
+
+        <insert tableName="ADDRESS">
+            <column name="street_name" value="jana pawła II"/>
+            <column name="city" value="Koszalin"/>
+            <column name="home_number" value="21/37"/>
+            <column name="zip_code" value="75-426"/>
+            <column name="country_id" value="1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
