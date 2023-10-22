@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+    <changeSet id="CREATE TABLE TASK" author="witczakm">
+        <createTable tableName="TASK">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(200)"/>
+            <column name="key" type="varchar(100)"/>
+            <column name="story_points" type="int"/>
+            <column name="deleted" type="boolean"/>
+            <column name="deleted_time" type="datetime"/>
+            <column name="project_id" type="bigint">
+                <constraints references="PROJECT(id)"
+                             foreignKeyName="FK_TASK_PROJECT"/>
+            </column>
+            <column name="task_type_id" type="bigint">
+                <constraints references="TASK_TYPE(id)"
+                             foreignKeyName="FK_TASK_TASK_TYPE"/>
+            </column>
+            <column name="person_id" type="bigint">
+                <constraints references="PERSON(id)"
+                             foreignKeyName="FK_TASK_PERSON"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
