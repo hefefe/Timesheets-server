@@ -14,6 +14,7 @@ public enum SprintDurationType {
 
     ONE_WEEK("one week", 1),
     TWO_WEEKS("two weeks", 2),
+    THREE_WEEKS("three weeks", 3),
     FOUR_WEEKS("four weeks", 4);
 
     @JsonValue

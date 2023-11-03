@@ -3,16 +3,24 @@ package com.mw.timesheets.domain.person;
 import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
+import com.mw.timesheets.domain.project.TeamEntity;
+import com.mw.timesheets.domain.task.CommentsEntity;
+import com.mw.timesheets.domain.task.TaskEntity;
+import com.mw.timesheets.domain.timetrack.HistoryEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,6 +28,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE PERSON SET deleted = true, deleted_time = NOW() WHERE id=?")
 public class PersonEntity extends CommonEntity {
 
     private String firstName;
@@ -36,6 +45,7 @@ public class PersonEntity extends CommonEntity {
 
     private LocalDate dateOfEmployment;
 
+    @Column(columnDefinition="BLOB")
     private byte[] photo;
 
     @Enumerated(EnumType.STRING)
@@ -44,7 +54,7 @@ public class PersonEntity extends CommonEntity {
     @Enumerated(EnumType.STRING)
     private Position position;
 
-    private boolean deleted;
+    private boolean deleted = Boolean.FALSE;
 
     private LocalDateTime deletedTime;
 
@@ -60,5 +70,13 @@ public class PersonEntity extends CommonEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
 
+    @ManyToMany(mappedBy = "persons")
+    private Set<TeamEntity> teams = new HashSet<>();
+
+    @OneToMany(mappedBy = "person")
+    private List<TaskEntity> tasks;
+
+    @OneToMany(mappedBy = "person")
+    private List<HistoryEntity> history;
 
 }

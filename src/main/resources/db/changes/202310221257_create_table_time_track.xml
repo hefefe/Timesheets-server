@@ -12,7 +12,8 @@
             <column name="description" type="varchar(200)"/>
             <column name="project_key" type="varchar(100)"/>
             <column name="task_name" type="varchar(200)"/>
-            <column name="started" type="datetime"/>
+            <column name="activityDate" type="date"/>
+            <column name="started" type="time"/>
             <column name="person_id" type="bigint">
                 <constraints references="PERSON(id)"
                              foreignKeyName="FK_TIME_TRACK_PERSON"/>

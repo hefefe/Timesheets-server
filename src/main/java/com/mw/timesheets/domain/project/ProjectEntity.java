@@ -1,17 +1,22 @@
 package com.mw.timesheets.domain.project;
 
 import com.mw.timesheets.commons.CommonEntity;
+import com.mw.timesheets.domain.person.AddressEntity;
+import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.type.SprintDurationType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import com.mw.timesheets.domain.task.TaskEntity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,18 +24,19 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE PROJECT SET deleted = true, deleted_time = NOW() WHERE id=?")
 public class ProjectEntity extends CommonEntity {
 
     private String name;
 
     private String key;
 
-    private String lead;
+    @OneToOne
+    @JoinColumn(name = "lead", referencedColumnName = "id")
+    private PersonEntity lead;
 
     @Enumerated(EnumType.STRING)
     private SprintDurationType sprintDuration;
-
-    private LocalDateTime deadLine;
 
     private LocalDateTime endOfSprint;
 
@@ -44,5 +50,22 @@ public class ProjectEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
+    @Column(columnDefinition="BLOB")
     private byte[] photo;
+
+    @ManyToMany
+    @JoinTable(
+            name = "team_project",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_id"))
+    private Set<TeamEntity> team  = new HashSet<>();
+
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    private Set<WorkflowEntity> workflow;
+
+    @OneToMany(mappedBy = "project")
+    private List<ProjectStatisticsEntity> statistics;
+
+    @OneToMany(mappedBy = "project")
+    private List<TaskEntity> tasks;
 }
