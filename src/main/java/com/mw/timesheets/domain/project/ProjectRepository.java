@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
@@ -18,4 +19,6 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
             "JOIN person u ON pt.person_id = u.id  " +
             "WHERE u.id=:personId", nativeQuery = true)
     List<ProjectEntity> findProjectByPersonId(@Param("personId")Long id);
+
+    List<ProjectEntity> findByEndOfSprintBefore(LocalDateTime dateTime);
 }

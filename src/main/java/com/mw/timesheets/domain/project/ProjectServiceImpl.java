@@ -31,11 +31,12 @@ public class ProjectServiceImpl implements ProjectService{
                 .photo(projectDTO.getPhoto())
                 .workflow(projectDTO.getWorkflow().stream()
                         .map(workflow -> WorkflowEntity.builder().name(workflow).build())
-                        .collect(Collectors.toSet()))
+                        .collect(Collectors.toList()))
                 .lead(securityUtils.getPersonByEmail())
                 .sprintDuration(projectDTO.getSprintDuration())
                 .endOfSprint(projectDTO.getStartOfSprint().plusWeeks(projectDTO.getSprintDuration().getDuration()))
                 .team(Sets.newHashSet(teamService.getTeamsByIds(projectDTO.getTeams())))
+                .taskNumber(0)
                 .build();
         projectRepository.save(project);
         return null;

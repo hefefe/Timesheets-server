@@ -25,6 +25,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE PROJECT SET deleted = true, deleted_time = NOW() WHERE id=?")
+@Table(name = "PROJECT")
 public class ProjectEntity extends CommonEntity {
 
     private String name;
@@ -61,7 +62,7 @@ public class ProjectEntity extends CommonEntity {
     private Set<TeamEntity> team  = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
-    private Set<WorkflowEntity> workflow;
+    private List<WorkflowEntity> workflow;
 
     @OneToMany(mappedBy = "project")
     private List<ProjectStatisticsEntity> statistics;

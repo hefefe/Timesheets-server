@@ -29,7 +29,7 @@ public class TeamEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "person_team",
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id")

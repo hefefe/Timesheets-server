@@ -1,13 +1,12 @@
 package com.mw.timesheets.domain.task;
 
 import com.mw.timesheets.commons.CommonEntity;
+import com.mw.timesheets.domain.person.AddressEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectStatisticsEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import com.mw.timesheets.domain.project.WorkflowEntity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +28,8 @@ public class TaskEntity extends CommonEntity {
 
     private String key;
 
+    private String description;
+
     private Integer storyPoints;
 
     private boolean deleted;
@@ -49,4 +50,8 @@ public class TaskEntity extends CommonEntity {
 
     @OneToMany(mappedBy = "task")
     private List<CommentsEntity> comments;
+
+    @ManyToOne
+    @JoinColumn(name = "workflow_id", referencedColumnName = "id")
+    private WorkflowEntity workflow;
 }

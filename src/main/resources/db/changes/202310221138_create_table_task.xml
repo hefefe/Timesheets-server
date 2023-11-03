@@ -11,6 +11,7 @@
             </column>
             <column name="name" type="varchar(200)"/>
             <column name="key" type="varchar(100)"/>
+            <column name="description" type="clob"/>
             <column name="story_points" type="int"/>
             <column name="deleted" type="boolean"/>
             <column name="deleted_time" type="datetime"/>
@@ -25,6 +26,10 @@
             <column name="person_id" type="bigint">
                 <constraints references="PERSON(id)"
                              foreignKeyName="FK_TASK_PERSON"/>
+            </column>
+            <column name="workflow_id" type="bigint">
+                <constraints references="WORKFLOW(id)"
+                             foreignKeyName="FK_TASK_WORKFLOW"/>
             </column>
         </createTable>
     </changeSet>

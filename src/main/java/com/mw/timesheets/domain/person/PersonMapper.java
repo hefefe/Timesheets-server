@@ -56,4 +56,6 @@ public interface PersonMapper extends CommonMapper<PersonEntity, PersonDTO> {
 
     @Named("countryToEntity")
     CountryEntity countryToEntity(CountryDTO countryDTO);
+
+    BasicPersonDataDTO toBasicData(PersonEntity person);
 }
