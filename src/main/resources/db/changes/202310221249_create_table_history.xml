@@ -19,10 +19,6 @@
                 <constraints references="PERSON(id)"
                              foreignKeyName="FK_HISTORY_PERSON"/>
             </column>
-            <column name="tag_id" type="bigint">
-                <constraints references="TAG(id)"
-                             foreignKeyName="FK_HISTORY_TAG"/>
-            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

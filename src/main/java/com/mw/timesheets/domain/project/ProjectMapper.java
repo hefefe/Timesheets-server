@@ -8,6 +8,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,11 +27,11 @@ public interface ProjectMapper extends CommonMapper<ProjectEntity, ProjectDTO> {
     ProjectDTO toDto(ProjectEntity entity);
 
     @Named("workflowStringToWorkflow")
-    default Set<WorkflowEntity> workflowToString(Set<String> workflowElements){
+    default List<WorkflowEntity> workflowToString(List<String> workflowElements){
         return workflowElements.stream()
                 .map(workflow -> WorkflowEntity.builder()
                         .name(workflow)
                         .build())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 }

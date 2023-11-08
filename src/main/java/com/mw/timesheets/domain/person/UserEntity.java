@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.person;
 
 import com.mw.timesheets.commons.CommonEntity;
+import com.mw.timesheets.domain.person.type.Roles;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,6 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "USER")
 public class UserEntity extends CommonEntity {
 
     private String email;
@@ -22,10 +24,8 @@ public class UserEntity extends CommonEntity {
 
     private String tempPassword;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id")
-    private RoleEntity role;
-
+    @Enumerated(EnumType.STRING)
+    private Roles role;
 
     @OneToOne(mappedBy = "user")
     private PersonEntity person;

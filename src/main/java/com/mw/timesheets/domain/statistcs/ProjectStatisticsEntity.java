@@ -1,9 +1,11 @@
-package com.mw.timesheets.domain.project;
+package com.mw.timesheets.domain.statistcs;
 
 import com.mw.timesheets.commons.CommonEntity;
+import com.mw.timesheets.domain.project.ProjectEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,7 @@ import java.time.LocalDate;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "PROJECT_STATISTICS")
 public class ProjectStatisticsEntity extends CommonEntity {
 
     private Integer sprintNumber;

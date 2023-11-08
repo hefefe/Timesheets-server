@@ -1,10 +1,8 @@
 package com.mw.timesheets.domain.task;
 
 import com.mw.timesheets.commons.CommonEntity;
-import com.mw.timesheets.domain.person.AddressEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
-import com.mw.timesheets.domain.project.ProjectStatisticsEntity;
 import com.mw.timesheets.domain.project.WorkflowEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,6 +22,8 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE TASK SET deleted = true, deleted_time = NOW() WHERE id=?")
+@Table(name = "TASK")
 public class TaskEntity extends CommonEntity {
 
     private String name;
@@ -47,9 +49,6 @@ public class TaskEntity extends CommonEntity {
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private PersonEntity person;
-
-    @OneToMany(mappedBy = "task")
-    private List<CommentsEntity> comments;
 
     @ManyToOne
     @JoinColumn(name = "workflow_id", referencedColumnName = "id")

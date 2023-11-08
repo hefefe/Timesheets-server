@@ -31,6 +31,8 @@
             <column name="deleted" type="boolean"/>
             <column name="deleted_time" type="datetime"/>
             <column name="date_of_employment" type="date"/>
+            <column name="work_during_week_in_hours" type="Integer"/>
+            <column name="hourly_pay" type="number(16,2)"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

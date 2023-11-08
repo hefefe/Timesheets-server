@@ -17,6 +17,4 @@ public class BasicTimerDataDTO {
     private String projectKey;
 
     private String taskName;
-
-    private TagDTO tag;
 }

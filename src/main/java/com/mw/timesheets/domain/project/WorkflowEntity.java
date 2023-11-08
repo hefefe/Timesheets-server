@@ -1,7 +1,6 @@
 package com.mw.timesheets.domain.project;
 
 import com.mw.timesheets.commons.CommonEntity;
-import com.mw.timesheets.domain.person.RoleEntity;
 import com.mw.timesheets.domain.task.TaskEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

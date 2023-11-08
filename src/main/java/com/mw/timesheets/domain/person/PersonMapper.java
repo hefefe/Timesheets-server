@@ -38,18 +38,10 @@ public interface PersonMapper extends CommonMapper<PersonEntity, PersonDTO> {
     ContactEntity contactToEntity(ContactDTO contactDTO);
 
     @Named("userToDTO")
-    @Mapping(source = "role", target = "role", qualifiedByName = "roleToDTO")
     UserDTO userToDTO(UserEntity user);
 
     @Named("userToEntity")
-    @Mapping(source = "role", target = "role", qualifiedByName = "roleToEntity")
     UserEntity userToEntity(UserDTO userDTO);
-
-    @Named("roleToDTO")
-    RoleDTO roleToDTO(RoleEntity role);
-
-    @Named("roleToEntity")
-    RoleEntity roleToEntity(RoleDTO roleDTO);
 
     @Named("CountryToDTO")
     CountryDTO countryToDTO(CountryEntity country);

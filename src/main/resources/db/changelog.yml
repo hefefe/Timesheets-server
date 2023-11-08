@@ -1,8 +1,5 @@
 databaseChangeLog:
   - include:
-      file: changes/202310202117_create_table_role.xml
-      relativeToChangelogFile: true
-  - include:
       file: changes/202310202120_create_table_user.xml
       relativeToChangelogFile: true
   - include:
@@ -16,9 +13,6 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: changes/202310211800_create_table_contact.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310212127_insert_role.xml
       relativeToChangelogFile: true
   - include:
       file: changes/202310212130_create_table_person.xml
@@ -45,18 +39,6 @@ databaseChangeLog:
       file: changes/202310221138_create_table_task.xml
       relativeToChangelogFile: true
   - include:
-      file: changes/202310221225_create_table_comments.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310221224_create_table_comment_resources.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310221247_create_table_tag.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310221248_insert_tags.xml
-      relativeToChangelogFile: true
-  - include:
       file: changes/202310221249_create_table_history.xml
       relativeToChangelogFile: true
   - include:
@@ -64,4 +46,7 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: changes/202310221623_create_table_project_statistics.xml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/202311071521_create_table_person_statistics.xml
       relativeToChangelogFile: true

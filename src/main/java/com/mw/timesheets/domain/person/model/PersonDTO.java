@@ -5,27 +5,20 @@ import com.mw.timesheets.domain.person.type.Position;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class PersonDTO {
-
-    private Long id;
-
-    private String firstName;
+@SuperBuilder
+public class PersonDTO extends BasicPersonDataDTO{
 
     private String middleName;
-
-    private String lastName;
 
     private String sex;
 
@@ -35,11 +28,13 @@ public class PersonDTO {
 
     private LocalDate dateOfEmployment;
 
-    private byte[] photo;
-
     private Experience experience;
 
     private Position position;
+
+    private Integer workDuringWeekInHours;
+
+    private Double hourlyPay;
 
     private boolean deleted;
 

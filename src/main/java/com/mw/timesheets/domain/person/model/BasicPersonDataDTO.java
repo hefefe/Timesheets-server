@@ -4,11 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Builder
+@SuperBuilder
 public class BasicPersonDataDTO {
 
     private Long id;

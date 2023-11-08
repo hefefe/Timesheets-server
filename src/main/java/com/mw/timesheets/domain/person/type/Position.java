@@ -7,12 +7,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Position {
 
-    BACKEND(Roles.ROLE_USER),
-    FRONTEND(Roles.ROLE_USER),
-    DEVOPS(Roles.ROLE_USER),
-    QA(Roles.ROLE_USER),
-    TEAM_LEADER(Roles.ROLE_MODERATOR),
-    MANAGER(Roles.ROLE_ADMIN);
-
-    private final Roles role;
+    BACKEND,
+    FRONTEND,
+    DEVOPS,
+    QA,
+    TEAM_LEADER,
+    MANAGER
 }

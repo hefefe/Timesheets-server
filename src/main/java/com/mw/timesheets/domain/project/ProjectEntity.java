@@ -1,9 +1,9 @@
 package com.mw.timesheets.domain.project;
 
 import com.mw.timesheets.commons.CommonEntity;
-import com.mw.timesheets.domain.person.AddressEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.type.SprintDurationType;
+import com.mw.timesheets.domain.statistcs.ProjectStatisticsEntity;
 import com.mw.timesheets.domain.task.TaskEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -67,6 +67,6 @@ public class ProjectEntity extends CommonEntity {
     @OneToMany(mappedBy = "project")
     private List<ProjectStatisticsEntity> statistics;
 
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.REMOVE})
     private List<TaskEntity> tasks;
 }

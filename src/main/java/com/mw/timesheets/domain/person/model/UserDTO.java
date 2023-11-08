@@ -1,5 +1,6 @@
 package com.mw.timesheets.domain.person.model;
 
+import com.mw.timesheets.domain.person.type.Roles;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,5 +18,5 @@ public class UserDTO {
 
     private String tempPassword;
 
-    private RoleDTO role;
+    private Roles roles;
 }

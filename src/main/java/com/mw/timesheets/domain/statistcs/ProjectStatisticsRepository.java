@@ -1,4 +1,4 @@
-package com.mw.timesheets.domain.project;
+package com.mw.timesheets.domain.statistcs;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

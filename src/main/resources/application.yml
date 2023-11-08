@@ -12,3 +12,15 @@ spring:
           show-sql: true
   liquibase:
     changelog: classpath:db/changelog.yml
+
+timesheets:
+  statistics:
+    time-interval: 60
+    overtime-pay-ratio: 1.5
+    holiday-pay-ratio: 2
+    working-days: 5
+  jwt:
+    accessTokenValidityTime: 600000
+    accessTokenSecret: 'ACCESS_TOKEN_SECRET_TO_CHANGE'
+    refreshTokenValidityTime: 600000
+    refreshTokenSecret: 'REFRESH_TOKEN_SECRET_TO_CHANGE'

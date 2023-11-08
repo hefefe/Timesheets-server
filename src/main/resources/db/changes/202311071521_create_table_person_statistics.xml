@@ -4,21 +4,22 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
-    <changeSet id="CREATE TABLE COMMENTS" author="witczakm">
-        <createTable tableName="COMMENTS">
+    <changeSet id="CREATE TABLE PERSON STATISTICS" author="witczakm">
+        <createTable tableName="PERSON_STATISTICS">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="task_id" type="bigint">
-                <constraints references="TASK(id)"
-                             foreignKeyName="FK_COMMENTS_TASK"/>
+            <column name="project_id" type="bigint">
+                <constraints references="PROJECT(id)"
+                             foreignKeyName="FK_PERSON_STATISTICS_PROJECT"/>
             </column>
             <column name="person_id" type="bigint">
                 <constraints references="PERSON(id)"
-                             foreignKeyName="FK_COMMENTS_PERSON"/>
+                             foreignKeyName="FK_PERSON_STATISTICS_PERSON"/>
             </column>
-            <column name="post_time" type="datetime"/>
-            <column name="description" type="clob"/>
+            <column name="date_of_snapshot" type="date"/>
+            <column name="completion_rate" type="number(1,2)"/>
+            <column name="sprint_number" type="int"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

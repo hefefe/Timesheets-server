@@ -45,9 +45,9 @@ public class ProjectServiceImpl implements ProjectService{
     @Override
     public List<ProjectDTO> getProjects() {
         List<ProjectEntity> projects = new ArrayList<>();
-        switch(securityUtils.getPosition().getRole()){
+        switch(securityUtils.getRole()){
             case ROLE_ADMIN -> projects = projectRepository.findAll();
-            case ROLE_MODERATOR -> projects = projectRepository.findByLead(securityUtils.getPersonByEmail());
+            case ROLE_LEADER -> projects = projectRepository.findByLead(securityUtils.getPersonByEmail());
             case ROLE_USER -> projects = projectRepository.findProjectByPersonId(securityUtils.getPersonByEmail().getId());
         }
         return projectMapper.toDtos(projects);

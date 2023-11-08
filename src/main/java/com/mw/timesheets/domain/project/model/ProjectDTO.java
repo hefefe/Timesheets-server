@@ -37,7 +37,7 @@ public class ProjectDTO {
 
     private byte[] photo;
 
-    private Set<String> workflow;
+    private List<String> workflow;
 
     private List<Long> teams;
 }

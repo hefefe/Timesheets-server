@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,13 +30,11 @@ public class TaskServiceImpl implements TaskService{
     private final WorkflowMapper workflowMapper;
     private final PersonMapper personMapper;
     private final TaskTypeMapper taskTypeMapper;
+
     @Override
     public TaskDTO saveTask(TaskDTO taskDTO, Long projectId) {
         var task = taskMapper.toEntity(taskDTO);
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
-//        task.toBuilder()
-//                .key(generateKeyForTask(project, task.getKey()))
-//                .taskType(taskTypeRepository.findById(task.getTaskType().getId()).orElseThrow())
         task.setKey(generateKeyForTask(project, task.getKey()));
         taskRepository.save(task);
         return taskMapper.toDto(task);

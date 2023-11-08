@@ -4,6 +4,7 @@ import com.mw.timesheets.commons.CustomErrorException;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.person.type.Position;
+import com.mw.timesheets.domain.person.type.Roles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ public class SecurityUtilsImpl implements SecurityUtils{
     }
 
     @Override
-    public Position getPosition() {
-        return Position.BACKEND;
+    public Roles getRole() {
+        return Roles.ROLE_ADMIN;
     }
 }

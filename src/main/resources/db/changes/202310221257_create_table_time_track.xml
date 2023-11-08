@@ -18,10 +18,6 @@
                 <constraints references="PERSON(id)"
                              foreignKeyName="FK_TIME_TRACK_PERSON"/>
             </column>
-            <column name="tag_id" type="bigint">
-                <constraints references="TAG(id)"
-                             foreignKeyName="FK_TIME_TRACK_TAG"/>
-            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

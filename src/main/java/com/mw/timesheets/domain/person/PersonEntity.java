@@ -4,7 +4,7 @@ import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
 import com.mw.timesheets.domain.project.TeamEntity;
-import com.mw.timesheets.domain.task.CommentsEntity;
+import com.mw.timesheets.domain.statistcs.PersonStatisticsEntity;
 import com.mw.timesheets.domain.task.TaskEntity;
 import com.mw.timesheets.domain.timetrack.HistoryEntity;
 import jakarta.persistence.*;
@@ -29,6 +29,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE PERSON SET deleted = true, deleted_time = NOW() WHERE id=?")
+@Table(name = "PERSON")
 public class PersonEntity extends CommonEntity {
 
     private String firstName;
@@ -44,6 +45,10 @@ public class PersonEntity extends CommonEntity {
     private LocalDate dateOfBirth;
 
     private LocalDate dateOfEmployment;
+
+    private Integer workDuringWeekInHours;
+
+    private Double hourlyPay;
 
     @Column(columnDefinition="BLOB")
     private byte[] photo;
@@ -78,5 +83,8 @@ public class PersonEntity extends CommonEntity {
 
     @OneToMany(mappedBy = "person")
     private List<HistoryEntity> history;
+
+    @OneToMany(mappedBy = "person")
+    private List<PersonStatisticsEntity> statistics;
 
 }

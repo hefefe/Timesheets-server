@@ -10,12 +10,9 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="email" type="varchar(150)"/>
+            <column name="role" type="varchar(50)"/>
             <column name="password" type="varchar(512)"/>
             <column name="temp_password" type="varchar(512)"/>
-            <column name="role_id" type="bigint">
-                <constraints references="ROLE(id)"
-                             foreignKeyName="FK_USER_ROLE" nullable="false"/>
-            </column>
         </createTable>
     </changeSet>
 </databaseChangeLog>

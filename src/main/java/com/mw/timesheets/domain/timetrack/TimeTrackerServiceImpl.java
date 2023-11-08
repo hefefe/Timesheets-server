@@ -63,7 +63,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService{
         var historyMap = person.getHistory().stream()
                 .filter(history -> history.getActivityDate().isAfter(to) && history.getActivityDate().isBefore(from))
                 .map(historyMapper::toDto)
-                .peek(history -> history.setTime(getTimeDiffInSeconds(history.getWorkFrom(), history.getWorkTo())))
+                .peek(history -> history.setTime(getTimeDiffInMinutes(history.getWorkFrom(), history.getWorkTo())))
                 .collect(Collectors.groupingBy(TrackedDataDTO::getActivityDate));
 
         var historyList = mapToTimeTrackerHistoryDto(historyMap);
@@ -96,7 +96,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService{
         return history;
     }
 
-    private Long getTimeDiffInSeconds(LocalTime from, LocalTime to){
-        return ChronoUnit.SECONDS.between(from, to);
+    private Long getTimeDiffInMinutes(LocalTime from, LocalTime to){
+        return ChronoUnit.MINUTES.between(from, to);
     }
 }

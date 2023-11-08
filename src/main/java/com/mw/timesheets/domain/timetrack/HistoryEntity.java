@@ -5,6 +5,7 @@ import com.mw.timesheets.domain.person.PersonEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import java.time.LocalTime;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "HISTORY")
 public class HistoryEntity extends CommonEntity {
 
     private String description;
@@ -38,8 +40,4 @@ public class HistoryEntity extends CommonEntity {
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private PersonEntity person;
-
-    @ManyToOne
-    @JoinColumn(name = "tag_id", referencedColumnName = "id")
-    private TagEntity tag;
 }
