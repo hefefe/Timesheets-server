@@ -32,6 +32,8 @@ public class TaskEntity extends CommonEntity {
 
     private String description;
 
+    private LocalDate doneDate;
+
     private Integer storyPoints;
 
     private boolean deleted;

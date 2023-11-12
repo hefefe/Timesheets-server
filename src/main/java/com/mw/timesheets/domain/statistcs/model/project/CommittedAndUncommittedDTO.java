@@ -6,10 +6,10 @@ import lombok.experimental.SuperBuilder;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 public class CommittedAndUncommittedDTO {
 
-    private Integer Committed;
+    private Double Committed;
 
-    private Integer uncommitted;
+    private Double uncommitted;
 }

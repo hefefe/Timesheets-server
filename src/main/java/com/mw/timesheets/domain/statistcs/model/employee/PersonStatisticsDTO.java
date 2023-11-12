@@ -1,16 +1,26 @@
 package com.mw.timesheets.domain.statistcs.model.employee;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 import java.util.List;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PersonStatisticsDTO {
 
     private Double completionRate;
 
-    private Double yearsOfEmployment;
+    private Integer yearsOfEmployment;
 
     private Double overtimeRatio;
 
-    private Double Pay;
+    private BigDecimal Pay;
 
     private Integer sumOfStoryPointsDone;
 

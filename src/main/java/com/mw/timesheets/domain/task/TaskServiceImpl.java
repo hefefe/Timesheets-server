@@ -1,5 +1,6 @@
 package com.mw.timesheets.domain.task;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.CustomErrorException;
 import com.mw.timesheets.domain.person.PersonMapper;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +38,13 @@ public class TaskServiceImpl implements TaskService{
         var task = taskMapper.toEntity(taskDTO);
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
         task.setKey(generateKeyForTask(project, task.getKey()));
+
+        if (Iterables.getLast(taskTypeRepository.findAll()).getName().equals(taskDTO.getTaskType().getName())) {
+            task.setDoneDate(LocalDate.now());
+        }else{
+            task.setDoneDate(null);
+        }
+
         taskRepository.save(task);
         return taskMapper.toDto(task);
     }

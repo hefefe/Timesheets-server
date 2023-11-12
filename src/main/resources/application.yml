@@ -17,7 +17,7 @@ timesheets:
   statistics:
     time-interval: 60
     overtime-pay-ratio: 1.5
-    holiday-pay-ratio: 2
+    holiday-pay-ratio: 2.0
     working-days: 5
   jwt:
     accessTokenValidityTime: 600000

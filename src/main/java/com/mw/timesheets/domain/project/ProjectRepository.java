@@ -20,5 +20,6 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
             "WHERE u.id=:personId", nativeQuery = true)
     List<ProjectEntity> findProjectByPersonId(@Param("personId")Long id);
 
-    List<ProjectEntity> findByEndOfSprintBefore(LocalDateTime dateTime);
+    List<ProjectEntity> findByEndOfSprintBeforeAndDeletedFalse(LocalDateTime dateTime);
+
 }

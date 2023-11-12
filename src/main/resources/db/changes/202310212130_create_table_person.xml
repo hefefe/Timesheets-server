@@ -13,7 +13,6 @@
             <column name="middle_name" type="varchar(100)"/>
             <column name="last_name" type="varchar(100)"/>
             <column name="sex" type="varchar(100)"/>
-            <column name="pesel_passport_number" type="varchar(100)"/>
             <column name="date_of_birth" type="date"/>
             <column name="photo" type="blob"/>
             <column name="address_id" type="bigint">

@@ -18,7 +18,7 @@
                              foreignKeyName="FK_PERSON_STATISTICS_PERSON"/>
             </column>
             <column name="date_of_snapshot" type="date"/>
-            <column name="completion_rate" type="number(1,2)"/>
+            <column name="completion_rate" type="number(2,2)"/>
             <column name="sprint_number" type="int"/>
         </createTable>
     </changeSet>

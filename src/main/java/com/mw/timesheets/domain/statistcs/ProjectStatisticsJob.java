@@ -21,11 +21,12 @@ public class ProjectStatisticsJob {
     private final ProjectRepository projectRepository;
     private final ProjectStatisticsRepository projectStatisticsRepository;
 
-    @Scheduled(cron = "55 59 23 * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void saveProgress() {
         var projects = projectRepository.findAll();
         var projectStatistics = projects.stream()
+                .filter(project -> !project.isDeleted())
                 .map(project -> ProjectStatisticsEntity.builder()
                         .day(LocalDate.now())
                         .project(project)
@@ -35,7 +36,6 @@ public class ProjectStatisticsJob {
                         .build())
                 .collect(Collectors.toList());
         projectStatisticsRepository.saveAll(projectStatistics);
-
     }
 
     private Integer calculateCommittedStoryPoints(ProjectEntity project){

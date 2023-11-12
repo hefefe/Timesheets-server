@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @RequiredArgsConstructor
-@SuperBuilder
+@SuperBuilder(toBuilder = true)
 public class BurnDownDTO extends CommittedAndUncommittedDTO{
 
     private LocalDate date;

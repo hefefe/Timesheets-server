@@ -1,4 +1,4 @@
-package com.mw.timesheets.domain.statistcs.model.employee;
+package com.mw.timesheets.domain.statistcs.model.project;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PersonCompletionRateDTO {
+public class TasksDoneDTO {
 
-    private String project;
+    private String type;
 
-    private Double completionRate;
+    private Integer numberOfTasks;
 }
