@@ -2,8 +2,8 @@ package com.mw.timesheets.domain.statistcs;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mw.timesheets.commons.CustomErrorException;
-import com.mw.timesheets.commons.StatisticsProperties;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
+import com.mw.timesheets.commons.properties.StatisticsProperties;
 import com.mw.timesheets.commons.util.DateUtils;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
@@ -224,13 +224,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .reduce(0, Integer::sum);
     }
 
-    //TODO: do joba statystyki dodać
     private Double velocity(ProjectEntity project, LocalDate from, LocalDate to){
         return project.getStatistics().stream()
                 .filter(statistics -> getListOfSprintNumbers(project, from, to).contains(statistics.getSprintNumber()))
                 .collect(Collectors.groupingBy(ProjectStatisticsEntity::getSprintNumber, Collectors.toList()))
                 .values().stream()
-                .map(stats -> stats.stream().max(Comparator.comparing(ProjectStatisticsEntity::getDay)).orElse(ProjectStatisticsEntity.builder().storyPointsDone(0).build()))
+                .map(stats -> stats.stream().max(Comparator.comparing(ProjectStatisticsEntity::getStoryPointsDone)).orElse(ProjectStatisticsEntity.builder().storyPointsDone(0).build()))
                 .mapToDouble(ProjectStatisticsEntity::getStoryPointsDone)
                 .average()
                 .orElse(0);
@@ -312,6 +311,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .mapToDouble(ProjectStatisticsEntity::getStoryPointsDone)
                     .findFirst()
                     .orElse(previousCommitted));
+
+            if (burndown.getDate().equals(LocalDate.now())) {
+                burndown.setCommitted(project.getTasks().stream()
+                        .filter(task -> !task.isDeleted() && task.getDoneDate().equals(LocalDate.now()))
+                        .mapToDouble(TaskEntity::getStoryPoints)
+                        .sum());
+            }
             previousCommitted = burndown.getCommitted();
         }
         return burnDownDTOS;

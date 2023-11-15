@@ -22,8 +22,6 @@ public class SearchPersonDTO {
 
     private List<String> sex;
 
-    private String peselPassportNumber;
-
     private String phoneNumber;
 
     private List<Experience> experience;

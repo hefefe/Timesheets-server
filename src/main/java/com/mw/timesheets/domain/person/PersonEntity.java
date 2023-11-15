@@ -28,7 +28,6 @@ import java.util.Set;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE PERSON SET deleted = true, deleted_time = NOW() WHERE id=?")
 @Table(name = "PERSON")
 public class PersonEntity extends CommonEntity {
 
@@ -39,8 +38,6 @@ public class PersonEntity extends CommonEntity {
     private String lastName;
 
     private String sex;
-
-    private String peselPassportNumber;
 
     private LocalDate dateOfBirth;
 
@@ -63,15 +60,16 @@ public class PersonEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private AddressEntity address;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "contact_id", referencedColumnName = "id")
     private ContactEntity contact;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.LAZY)
+    //TODO: zeby usuniety użytkownik nie mogl sie logowac
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
 

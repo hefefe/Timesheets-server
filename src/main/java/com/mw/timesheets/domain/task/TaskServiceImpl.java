@@ -2,7 +2,7 @@ package com.mw.timesheets.domain.task;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.mw.timesheets.commons.CustomErrorException;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.domain.person.PersonMapper;
 import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
 import com.mw.timesheets.domain.project.ProjectEntity;
@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

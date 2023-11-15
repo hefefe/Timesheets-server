@@ -1,4 +1,4 @@
-package com.mw.timesheets.commons;
+package com.mw.timesheets.commons.errorhandling;
 
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpHeaders;

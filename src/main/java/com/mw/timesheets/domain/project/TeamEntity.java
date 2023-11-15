@@ -21,6 +21,7 @@ import java.util.Set;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "TEAM")
 public class TeamEntity extends CommonEntity {
 
     private String name;
@@ -29,7 +30,7 @@ public class TeamEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
+    @ManyToMany
     @JoinTable(name = "person_team",
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id")

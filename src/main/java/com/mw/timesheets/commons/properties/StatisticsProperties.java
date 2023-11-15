@@ -1,4 +1,4 @@
-package com.mw.timesheets.commons;
+package com.mw.timesheets.commons.properties;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

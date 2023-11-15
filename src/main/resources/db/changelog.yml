@@ -50,3 +50,6 @@ databaseChangeLog:
   - include:
       file: changes/202311071521_create_table_person_statistics.xml
       relativeToChangelogFile: true
+  - include:
+      file: changes/202311121711_create_table_token_blacklist.xml
+      relativeToChangelogFile: true

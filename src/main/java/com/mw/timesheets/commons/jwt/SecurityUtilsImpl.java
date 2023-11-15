@@ -1,13 +1,16 @@
 package com.mw.timesheets.commons.jwt;
 
-import com.mw.timesheets.commons.CustomErrorException;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
-import com.mw.timesheets.domain.person.type.Position;
 import com.mw.timesheets.domain.person.type.Roles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -17,22 +20,19 @@ public class SecurityUtilsImpl implements SecurityUtils{
 
     @Override
     public PersonEntity getPersonByEmail() {
-        return personRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new CustomErrorException("no such person with given email", HttpStatus.NOT_FOUND));
+        return personRepository.findByUser_Email(getEmail()).orElseThrow(() -> new CustomErrorException("user not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public String getEmail() {
-        return personRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new CustomErrorException("no such person with given email", HttpStatus.NOT_FOUND))
-                .getUser()
-                .getEmail();
+        return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .map(Authentication::getPrincipal)
+                .map(String.class::cast)
+                .orElse(null);
     }
 
     @Override
     public Roles getRole() {
-        return Roles.ROLE_ADMIN;
+        return getPersonByEmail().getUser().getRole();
     }
 }

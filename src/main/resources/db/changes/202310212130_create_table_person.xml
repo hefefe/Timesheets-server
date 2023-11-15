@@ -12,6 +12,8 @@
             <column name="first_name" type="varchar(100)"/>
             <column name="middle_name" type="varchar(100)"/>
             <column name="last_name" type="varchar(100)"/>
+            <column name="experience" type="varchar(100)"/>
+            <column name="position" type="varchar(100)"/>
             <column name="sex" type="varchar(100)"/>
             <column name="date_of_birth" type="date"/>
             <column name="photo" type="blob"/>
@@ -27,7 +29,7 @@
                 <constraints references="USER(id)"
                              foreignKeyName="FK_PERSON_USER"/>
             </column>
-            <column name="deleted" type="boolean"/>
+            <column name="deleted" type="boolean" defaultValue="false"/>
             <column name="deleted_time" type="datetime"/>
             <column name="date_of_employment" type="date"/>
             <column name="work_during_week_in_hours" type="Integer"/>

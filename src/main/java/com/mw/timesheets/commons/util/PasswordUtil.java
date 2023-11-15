@@ -3,15 +3,16 @@ package com.mw.timesheets.commons.util;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PasswordUtil {
 
-    private String generateTempPassword(){
+    public static String generateTempPassword(){
         CharacterRule alphabets = new CharacterRule(EnglishCharacterData.Alphabetical);
         CharacterRule digits = new CharacterRule(EnglishCharacterData.Digit);
-        CharacterRule special = new CharacterRule(EnglishCharacterData.Special);
 
         PasswordGenerator passwordGenerator = new PasswordGenerator();
-        return passwordGenerator.generatePassword(8, alphabets, digits, special);
+        return passwordGenerator.generatePassword(8, alphabets, digits);
     }
 }

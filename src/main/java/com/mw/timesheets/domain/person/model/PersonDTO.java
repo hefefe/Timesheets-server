@@ -22,8 +22,6 @@ public class PersonDTO extends BasicPersonDataDTO{
 
     private String sex;
 
-    private String peselPassportNumber;
-
     private LocalDate dateOfBirth;
 
     private LocalDate dateOfEmployment;
@@ -35,10 +33,6 @@ public class PersonDTO extends BasicPersonDataDTO{
     private Integer workDuringWeekInHours;
 
     private Double hourlyPay;
-
-    private boolean deleted;
-
-    private LocalDateTime deletedTime;
 
     private AddressDTO address;
 

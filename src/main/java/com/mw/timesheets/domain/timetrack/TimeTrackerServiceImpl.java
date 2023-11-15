@@ -1,7 +1,7 @@
 package com.mw.timesheets.domain.timetrack;
 
 import com.google.common.collect.Lists;
-import com.mw.timesheets.commons.CustomErrorException;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;

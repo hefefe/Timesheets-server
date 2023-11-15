@@ -1,10 +1,9 @@
-package com.mw.timesheets.commons;
+package com.mw.timesheets.commons.errorhandling;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
 import java.util.List;
 

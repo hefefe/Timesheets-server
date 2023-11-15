@@ -1,4 +1,4 @@
-package com.mw.timesheets.commons;
+package com.mw.timesheets.commons.errorhandling;
 
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;

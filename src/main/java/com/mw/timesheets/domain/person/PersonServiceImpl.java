@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.person;
 
-import com.mw.timesheets.commons.CustomErrorException;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
+import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,8 +33,18 @@ public class PersonServiceImpl implements PersonService{
         if (persons == null){
             throw new CustomErrorException("no persons to save", HttpStatus.BAD_REQUEST);
         }
-        List<PersonEntity> personList = personRepository.saveAll(personMapper.toEntities(persons));
+        var personEntities = personMapper.toEntities(persons).stream()
+                .peek(this::setTempPassword)
+                .peek(person -> person.getUser().setRole(person.getPosition().getRole()))
+                .collect(Collectors.toList());
+        List<PersonEntity> personList = personRepository.saveAll(personEntities);
         return personMapper.toDtos(personList);
+    }
+
+    private PersonEntity setTempPassword(PersonEntity person){
+        if(person.getUser().getPassword() != null) return person;
+        person.getUser().setTempPassword(PasswordUtil.generateTempPassword());
+        return person;
     }
 
     @Override
@@ -40,7 +52,11 @@ public class PersonServiceImpl implements PersonService{
         if (ids == null){
             throw new CustomErrorException("no given id", HttpStatus.BAD_REQUEST);
         }
-        personRepository.deleteAllById(ids);
+        var persons = personRepository.findAllById(ids).stream()
+                .peek(person -> person.setDeleted(true))
+                .peek(person -> person.setDeletedTime(LocalDateTime.now()))
+                .collect(Collectors.toList());
+        personRepository.saveAll(persons);
     }
 
     @Override
@@ -49,13 +65,13 @@ public class PersonServiceImpl implements PersonService{
     }
 
     @Override
-    public List<String> getExperience() {
-        return Arrays.stream(Experience.values()).map(Enum::toString).collect(Collectors.toList());
+    public List<Experience> getExperience() {
+        return Arrays.stream(Experience.values()).collect(Collectors.toList());
     }
 
     @Override
-    public List<String> getJobPosition() {
-        return Arrays.stream(Position.values()).map(Enum::toString).collect(Collectors.toList());
+    public List<Position> getJobPosition() {
+        return Arrays.stream(Position.values()).collect(Collectors.toList());
     }
 
     @Override

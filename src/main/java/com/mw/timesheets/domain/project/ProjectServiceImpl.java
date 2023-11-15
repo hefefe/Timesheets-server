@@ -1,9 +1,8 @@
 package com.mw.timesheets.domain.project;
 
 import com.google.common.collect.Sets;
-import com.mw.timesheets.commons.CustomErrorException;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
-import com.mw.timesheets.domain.person.type.Roles;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

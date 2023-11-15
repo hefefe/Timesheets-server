@@ -1,5 +1,6 @@
 package com.mw.timesheets.domain.security.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,5 +14,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class ChangePasswordDTO extends LoginDTO{
 
+    @NotNull
     private String confirmPassword;
 }

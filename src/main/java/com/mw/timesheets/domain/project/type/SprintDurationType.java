@@ -1,7 +1,7 @@
 package com.mw.timesheets.domain.project.type;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.mw.timesheets.commons.CustomErrorException;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

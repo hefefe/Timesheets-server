@@ -3,7 +3,7 @@ spring:
     url: jdbc:mysql://localhost:3306/timesheets?createDatabaseIfNotExist=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
     username: admin
     password: admin
-    driverClassName: com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
       properties:
         hibernate:
@@ -12,7 +12,6 @@ spring:
           show-sql: true
   liquibase:
     changelog: classpath:db/changelog.yml
-
 timesheets:
   statistics:
     time-interval: 60
@@ -24,3 +23,9 @@ timesheets:
     accessTokenSecret: 'ACCESS_TOKEN_SECRET_TO_CHANGE'
     refreshTokenValidityTime: 600000
     refreshTokenSecret: 'REFRESH_TOKEN_SECRET_TO_CHANGE'
+    appNAme: 'timesheets'
+logging:
+  level:
+    org:
+      springframework:
+        web: debug
