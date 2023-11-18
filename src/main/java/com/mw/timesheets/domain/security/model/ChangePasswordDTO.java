@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class ChangePasswordDTO extends LoginDTO{
+public class ChangePasswordDTO extends LoginDTO {
 
     @NotNull
     private String confirmPassword;

@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @SuperBuilder
-public class SprintCompletionDTO extends CommittedAndUncommittedDTO{
+public class SprintCompletionDTO extends CommittedAndUncommittedDTO {
 
     private Integer sprintNumber;
 }

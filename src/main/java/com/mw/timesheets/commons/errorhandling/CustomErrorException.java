@@ -9,7 +9,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @Getter
-public class CustomErrorException extends RuntimeException{
+public class CustomErrorException extends RuntimeException {
     private List<? extends ErrorDTO> messages;
 
     private HttpStatus status;

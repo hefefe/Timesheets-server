@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
+import com.mw.timesheets.domain.team.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class ProjectServiceImpl implements ProjectService{
+public class ProjectServiceImpl implements ProjectService {
 
     private final SecurityUtils securityUtils;
     private final TeamService teamService;
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
 
+    //TODO: sprint number tak, aby brał pod uwage za lub przed LocalDateTime.now()
     @Override
     public ProjectDTO saveProject(ProjectDTO projectDTO) {
         var project = ProjectEntity.builder()
@@ -35,19 +37,21 @@ public class ProjectServiceImpl implements ProjectService{
                 .sprintDuration(projectDTO.getSprintDuration())
                 .endOfSprint(projectDTO.getStartOfSprint().plusWeeks(projectDTO.getSprintDuration().getDuration()))
                 .team(Sets.newHashSet(teamService.getTeamsByIds(projectDTO.getTeams())))
-                .taskNumber(0)
                 .build();
         projectRepository.save(project);
         return null;
     }
 
     @Override
-    public List<ProjectDTO> getProjects() {
+    public List<ProjectDTO> getProjects(String name) {
         List<ProjectEntity> projects = new ArrayList<>();
-        switch(securityUtils.getRole()){
+        var nameLike = name == null ? "%" : "%" + name + "%";
+        switch (securityUtils.getRole()) {
             case ROLE_ADMIN -> projects = projectRepository.findAll();
-            case ROLE_LEADER -> projects = projectRepository.findByLead(securityUtils.getPersonByEmail());
-            case ROLE_USER -> projects = projectRepository.findProjectByPersonId(securityUtils.getPersonByEmail().getId());
+            case ROLE_LEADER ->
+                    projects = projectRepository.findByLeadAndNameLike(securityUtils.getPersonByEmail(), nameLike);
+            case ROLE_USER ->
+                    projects = projectRepository.findProjectByPersonIdAndName(securityUtils.getPersonByEmail().getId(), nameLike);
         }
         return projectMapper.toDtos(projects);
     }
@@ -62,10 +66,15 @@ public class ProjectServiceImpl implements ProjectService{
         return projectMapper.toDto(projectRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST)));
     }
 
-    private String getKeyFromName(String name){
+    @Override
+    public List<ProjectDTO> getProjectsByName(String name) {
+        return null;
+    }
+
+    private String getKeyFromName(String name) {
         String[] arr = name.split(" ");
         return Arrays.stream(arr)
-                .map(word -> word.substring(0,0).toUpperCase())
+                .map(word -> word.substring(0, 0).toUpperCase())
                 .collect(Collectors.joining());
     }
 

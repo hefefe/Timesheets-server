@@ -22,6 +22,7 @@ public class SecurityConfiguration {
     private final JwtService jwtService;
     private final UserDetailService userDetailService;
     private final TokenBlacklistService tokenBlacklistService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 

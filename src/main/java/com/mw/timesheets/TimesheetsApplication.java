@@ -3,10 +3,6 @@ package com.mw.timesheets;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.YearMonth;
-
 @SpringBootApplication
 public class TimesheetsApplication {
 

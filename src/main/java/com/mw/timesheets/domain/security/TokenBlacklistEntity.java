@@ -21,6 +21,5 @@ public class TokenBlacklistEntity {
     @Column(name = "token", nullable = false)
     private String token;
 
-    @Column(name = "expire_date")
-    private Timestamp expireDate;
+    private Timestamp expTimestamp;
 }

@@ -16,12 +16,13 @@ public class ErrorDTO {
 
     private List<String> messages = Lists.newArrayList();
 
-    public static ErrorDTO withSingleMessage(String message){
+    public static ErrorDTO withSingleMessage(String message) {
         return ErrorDTO.builder()
                 .messages(Lists.newArrayList(message))
                 .build();
     }
-    public static ErrorDTO withMultipleMessages(List<String> messages){
+
+    public static ErrorDTO withMultipleMessages(List<String> messages) {
         return ErrorDTO.builder()
                 .messages(messages)
                 .build();

@@ -20,7 +20,9 @@ import org.springframework.util.StringUtils;
 
 import java.sql.Timestamp;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.jsonwebtoken.SignatureAlgorithm.HS512;
 
@@ -45,10 +47,10 @@ public class JwtServiceImpl implements JwtService {
     public CheckTokenDTO checkToken(AccessTokenDTO accessTokenDTO) {
         try {
             String userName = getEmailFromToken(accessTokenDTO.getAccessToken(), jwtProperties.getAccessTokenSecret());
-            if (!tokenBlacklistRepository.existsById(accessTokenDTO.getAccessToken())){
+            if (!tokenBlacklistRepository.existsById(accessTokenDTO.getAccessToken())) {
                 return CheckTokenDTO.builder().isValid(true).build();
             }
-        }catch(Exception ex){
+        } catch (Exception ex) {
         }
         return CheckTokenDTO.builder().isValid(Boolean.FALSE).build();
     }
@@ -71,6 +73,7 @@ public class JwtServiceImpl implements JwtService {
                 .accessTokenValidityTime(jwtProperties.getAccessTokenValidityTime())
                 .refreshToken(generateRefreshToken(userEntity))
                 .refreshTokenValidityTime(jwtProperties.getRefreshTokenValidityTime())
+                .requiredToChangePassword(requiredToChangePassword)
                 .build();
     }
 
@@ -84,14 +87,14 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private void blockToken(String token, String secret) {
-        if(!StringUtils.isEmpty(token)) {
+        if (!StringUtils.isEmpty(token)) {
             try {
                 Jws<Claims> tokenClaims = Jwts.parser()
                         .setSigningKey(secret)
                         .parseClaimsJws(token);
                 TokenBlacklistEntity tokenToBlock = TokenBlacklistEntity.builder()
                         .token(token)
-                        .expireDate(Timestamp.from(tokenClaims.getBody().getExpiration().toInstant()))
+                        .expTimestamp(Timestamp.from(tokenClaims.getBody().getExpiration().toInstant()))
                         .build();
                 tokenBlacklistRepository.save(tokenToBlock);
             } catch (Exception e) {

@@ -1,4 +1,4 @@
-package com.mw.timesheets.domain.project.model;
+package com.mw.timesheets.domain.team.model;
 
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

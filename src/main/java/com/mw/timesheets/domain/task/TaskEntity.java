@@ -4,7 +4,10 @@ import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.WorkflowEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +17,6 @@ import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter

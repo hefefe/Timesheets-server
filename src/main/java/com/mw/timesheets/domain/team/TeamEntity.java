@@ -1,14 +1,14 @@
-package com.mw.timesheets.domain.project;
+package com.mw.timesheets.domain.team;
 
 import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
-import com.mw.timesheets.domain.project.type.SprintDurationType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -22,6 +22,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "TEAM")
+@SQLDelete(sql = "UPDATE TEAM SET deleted = true, deleted_time = NOW() WHERE id=?")
 public class TeamEntity extends CommonEntity {
 
     private String name;
@@ -30,7 +31,7 @@ public class TeamEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "person_team",
             joinColumns = @JoinColumn(name = "team_id"),
             inverseJoinColumns = @JoinColumn(name = "person_id")

@@ -31,7 +31,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     @ExceptionHandler(CustomErrorException.class)
-    protected ResponseEntity<Object> handleCustomError(CustomErrorException ex){
+    protected ResponseEntity<Object> handleCustomError(CustomErrorException ex) {
         return new ResponseEntity<>(ex.getMessages(), ex.getStatus());
     }
 }

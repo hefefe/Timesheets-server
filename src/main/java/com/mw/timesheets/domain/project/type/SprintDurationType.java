@@ -21,7 +21,7 @@ public enum SprintDurationType {
     private final String name;
     private final Integer duration;
 
-    public SprintDurationType getTypeFromValue(String value){
+    public SprintDurationType getTypeFromValue(String value) {
         return Arrays.stream(SprintDurationType.values())
                 .filter(sprintDurationType -> sprintDurationType.getName().equals(value))
                 .findFirst()

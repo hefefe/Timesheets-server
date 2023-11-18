@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordUtil {
 
-    public static String generateTempPassword(){
+    public static String generateTempPassword() {
         CharacterRule alphabets = new CharacterRule(EnglishCharacterData.Alphabetical);
         CharacterRule digits = new CharacterRule(EnglishCharacterData.Digit);
 

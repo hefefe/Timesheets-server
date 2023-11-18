@@ -1,6 +1,5 @@
 package com.mw.timesheets.domain.security.model;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

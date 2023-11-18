@@ -14,7 +14,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class SecurityUtilsImpl implements SecurityUtils{
+public class SecurityUtilsImpl implements SecurityUtils {
 
     private final PersonRepository personRepository;
 

@@ -2,7 +2,6 @@ package com.mw.timesheets.domain.security;
 
 import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
-import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.person.UserEntity;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +17,7 @@ import java.util.Set;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class UserDetailServiceImpl implements UserDetailService{
+public class UserDetailServiceImpl implements UserDetailService {
     private final PersonRepository personRepository;
 
     @Override

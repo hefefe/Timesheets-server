@@ -1,6 +1,6 @@
-package com.mw.timesheets.domain.project;
+package com.mw.timesheets.domain.team;
 
-import com.mw.timesheets.domain.project.model.TeamDTO;
+import com.mw.timesheets.domain.team.model.TeamDTO;
 
 import java.util.List;
 

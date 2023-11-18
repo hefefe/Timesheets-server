@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TimeTrackerServiceImpl implements TimeTrackService{
+public class TimeTrackerServiceImpl implements TimeTrackService {
 
     private final TimeTrackRepository timeTrackRepository;
     private final TimeTrackerMapper timeTrackerMapper;
@@ -32,7 +34,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService{
 
     @Override
     public void startTracking(BasicTimerDataDTO timeTrackerData) {
-        if(timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId())){
+        if (timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId())) {
             throw new CustomErrorException("stop current time tracker", HttpStatus.BAD_REQUEST);
         }
 
@@ -46,7 +48,12 @@ public class TimeTrackerServiceImpl implements TimeTrackService{
     @Override
     @Transactional
     public void stopTrackingTime() {
-        if(!timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId())){
+        stopTrackingTime(securityUtils.getPersonByEmail().getId());
+    }
+
+    @Override
+    public void stopTrackingTime(Long id) {
+        if (!timeTrackRepository.existsByPersonId(id)) {
             throw new CustomErrorException("no tracker to stop", HttpStatus.BAD_REQUEST);
         }
         var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getPersonByEmail().getUser().getEmail());
@@ -77,26 +84,25 @@ public class TimeTrackerServiceImpl implements TimeTrackService{
 
     @Override
     public HistoryWithTotalTimeDTO getHistoryOfUser() {
-        //TODO: w przypadku problemu zmienić implementacje
         var monday = LocalDate.now().with(DayOfWeek.MONDAY);
         var sunday = LocalDate.now().with(DayOfWeek.SUNDAY);
         return getHistoryOfGivenUser(securityUtils.getPersonByEmail().getId(), monday, sunday);
     }
 
-    private List<TimeTrackerHistoryDTO> mapToTimeTrackerHistoryDto(Map<LocalDate, List<TrackedDataDTO>> groupedHistory){
+    private List<TimeTrackerHistoryDTO> mapToTimeTrackerHistoryDto(Map<LocalDate, List<TrackedDataDTO>> groupedHistory) {
         List<TimeTrackerHistoryDTO> history = Lists.newArrayList();
 
         groupedHistory.forEach((key, value) -> history.add(TimeTrackerHistoryDTO.builder()
-                        .dateOfActivity(key)
-                        .trackedData(value)
-                        .time(value.stream()
-                                .map(TrackedDataDTO::getTime)
-                                .reduce(0L, Long::sum))
+                .dateOfActivity(key)
+                .trackedData(value)
+                .time(value.stream()
+                        .map(TrackedDataDTO::getTime)
+                        .reduce(0L, Long::sum))
                 .build()));
         return history;
     }
 
-    private Long getTimeDiffInMinutes(LocalTime from, LocalTime to){
+    private Long getTimeDiffInMinutes(LocalTime from, LocalTime to) {
         return ChronoUnit.MINUTES.between(from, to);
     }
 }

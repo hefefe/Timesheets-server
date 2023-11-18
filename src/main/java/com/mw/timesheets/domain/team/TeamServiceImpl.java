@@ -1,10 +1,9 @@
-package com.mw.timesheets.domain.project;
+package com.mw.timesheets.domain.team;
 
 import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.CommonEntity;
-import com.mw.timesheets.domain.person.PersonMapper;
 import com.mw.timesheets.domain.person.PersonService;
-import com.mw.timesheets.domain.project.model.TeamDTO;
+import com.mw.timesheets.domain.team.model.TeamDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,19 +12,20 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-public class TeamServiceImpl implements TeamService{
+public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
     private final PersonService personService;
+
     @Override
     public List<TeamDTO> getTeams() {
-        return teamMapper.toDtos(teamRepository.findAll());
+        return teamMapper.toDtos(teamRepository.findByDeletedFalse());
     }
 
     @Override
     public List<TeamDTO> getTeamsLike(String name) {
-        return teamMapper.toDtos(teamRepository.findByNameContaining(name));
+        return teamMapper.toDtos(teamRepository.findByNameContainingAndDeletedFalse(name));
     }
 
     @Override

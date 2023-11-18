@@ -8,9 +8,11 @@ public interface ProjectService {
 
     ProjectDTO saveProject(ProjectDTO projectDTO);
 
-    List<ProjectDTO> getProjects();
+    List<ProjectDTO> getProjects(String name);
 
     void deleteProject(Long id);
 
     ProjectDTO getProject(Long id);
+
+    List<ProjectDTO> getProjectsByName(String name);
 }

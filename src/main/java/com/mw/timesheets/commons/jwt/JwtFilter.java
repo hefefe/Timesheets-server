@@ -31,17 +31,17 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorization = request.getHeader(AUTHORIZATION_HEADER);
         if (!StringUtils.isEmpty(authorization)
-                && authorization.startsWith(BEARER_TOKEN)){
+                && authorization.startsWith(BEARER_TOKEN)) {
             String token = extractBareToken(authorization);
 
-            if (!tokenBlacklistService.isTokenInBlacklist(token)){
+            if (!tokenBlacklistService.isTokenInBlacklist(token)) {
                 String username = jwtService.getUsernameFromAccessToken(token);
                 UserDetails userDetails = userDetailService.loadUserByUserName(username);
                 Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
 
     private String extractBareToken(String token) {

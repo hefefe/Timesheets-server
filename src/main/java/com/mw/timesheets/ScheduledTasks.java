@@ -1,11 +1,18 @@
-package com.mw.timesheets.domain.statistcs;
+package com.mw.timesheets;
 
 import com.google.common.collect.Iterables;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
-import com.mw.timesheets.domain.project.TeamEntity;
+import com.mw.timesheets.domain.statistcs.PersonStatisticsEntity;
+import com.mw.timesheets.domain.statistcs.PersonStatisticsRepository;
+import com.mw.timesheets.domain.statistcs.ProjectStatisticsEntity;
+import com.mw.timesheets.domain.statistcs.ProjectStatisticsRepository;
 import com.mw.timesheets.domain.task.TaskEntity;
+import com.mw.timesheets.domain.team.TeamEntity;
+import com.mw.timesheets.domain.timetrack.TimeTrackEntity;
+import com.mw.timesheets.domain.timetrack.TimeTrackRepository;
+import com.mw.timesheets.domain.timetrack.TimeTrackService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
@@ -21,11 +28,20 @@ import java.util.stream.Collectors;
 @Configuration
 @EnableScheduling
 @RequiredArgsConstructor
-public class ProjectStatisticsJob {
+public class ScheduledTasks {
 
     private final ProjectRepository projectRepository;
     private final ProjectStatisticsRepository projectStatisticsRepository;
+    private final TimeTrackRepository timeTrackRepository;
+    private final TimeTrackService timeTrackService;
     private final PersonStatisticsRepository personStatisticsRepository;
+
+    private void endTimers() {
+        timeTrackRepository.findAll().stream()
+                .map(TimeTrackEntity::getPerson)
+                .toList()
+                .forEach(person -> timeTrackService.stopTrackingTime(person.getId()));
+    }
 
     @Transactional
     public void saveProgress(List<ProjectEntity> projects) {
@@ -42,12 +58,13 @@ public class ProjectStatisticsJob {
         projectStatisticsRepository.saveAll(projectStatistics);
     }
 
-    private Integer calculateCommittedStoryPoints(ProjectEntity project){
+    private Integer calculateCommittedStoryPoints(ProjectEntity project) {
         return project.getTasks().stream()
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum);
     }
-    private Integer calculateDoneStoryPoints(ProjectEntity project){
+
+    private Integer calculateDoneStoryPoints(ProjectEntity project) {
         return project.getTasks().stream()
                 .filter(task -> Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName()))
                 .map(TaskEntity::getStoryPoints)
@@ -58,14 +75,14 @@ public class ProjectStatisticsJob {
     @Transactional
     public void modifyProjects() {
         var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(LocalDateTime.now());
-        if (projects != null){
+        if (projects != null) {
             saveProgress(projects);
             savePersonStatistics(projects);
             projectNextIteration(projects);
         }
     }
 
-    private void savePersonStatistics(List<ProjectEntity> projects){
+    private void savePersonStatistics(List<ProjectEntity> projects) {
         projects.stream()
                 .map(project -> project.getTeam()
                         .stream()
@@ -82,7 +99,7 @@ public class ProjectStatisticsJob {
                 .forEach(personStatisticsRepository::saveAll);
     }
 
-    private Double calculateCompletionRate(PersonEntity person, ProjectEntity project){
+    private Double calculateCompletionRate(PersonEntity person, ProjectEntity project) {
         var tasks = person.getTasks();
         var committed = tasks.stream()
                 .filter(task -> task.getProject().equals(project) && !task.isDeleted())
@@ -95,15 +112,15 @@ public class ProjectStatisticsJob {
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum)
                 .doubleValue();
-        return committed <= 0 ? 0 : done/committed;
+        return committed <= 0 ? 0 : done / committed;
     }
 
-    private void projectNextIteration(List<ProjectEntity> projects){
+    private void projectNextIteration(List<ProjectEntity> projects) {
         //TODO: sprawdzić ostatni element listy project workflow, bo może być przypał
         var modifiedProject = projects.stream()
                 .filter(project -> !project.isDeleted())
-                .peek(project -> project.setEndOfSprint(project.getEndOfSprint().plusWeeks(project.getSprintDuration().getDuration())))
-                .peek(project -> project.setSprintNumber(project.getSprintNumber()+1))
+                .peek(project -> project.setEndOfSprint(calculateEndOfSprint(project)))
+                .peek(project -> project.setSprintNumber(project.getSprintNumber() + 1))
                 .peek(project -> project.setTasks(project.getTasks().stream()
                         .filter(task -> !Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName()))
                         .collect(Collectors.toList())))
@@ -112,8 +129,18 @@ public class ProjectStatisticsJob {
         projectRepository.saveAll(modifiedProject);
     }
 
+    private LocalDateTime calculateEndOfSprint(ProjectEntity project) {
+        var endOfSprint = project.getEndOfSprint();
+        var sprintLength = project.getSprintDuration();
+        do {
+            endOfSprint = endOfSprint.plusWeeks(sprintLength.getDuration());
+        } while (endOfSprint.isAfter(LocalDateTime.now()));
+        return endOfSprint;
+    }
+
     @Scheduled(cron = "0 0 0 * * *")
-    public void saveProjectStats(){
+    public void saveProjectStats() {
         saveProgress(projectRepository.findAll());
+        endTimers();
     }
 }

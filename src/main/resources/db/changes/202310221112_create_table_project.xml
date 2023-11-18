@@ -17,8 +17,8 @@
             </column>
             <column name="sprint_duration" type="varchar(100)"/>
             <column name="end_of_sprint" type="datetime"/>
-            <column name="task_number" type="int"/>
-            <column name="sprint_number" type="int"/>
+            <column name="task_number" type="int" defaultValue="0"/>
+            <column name="sprint_number" type="int" defaultValue="0"/>
             <column name="sprint_goal" type="varchar(100)"/>
             <column name="photo" type="blob"/>
             <column name="deleted" type="boolean"/>

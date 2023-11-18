@@ -3,6 +3,7 @@ package com.mw.timesheets.domain.person;
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,4 +22,6 @@ public interface PersonService {
     List<Position> getJobPosition();
 
     List<String> getGenders();
+
+    List<PersonDTO> savePersonPhoto(Long personId, MultipartFile photo);
 }

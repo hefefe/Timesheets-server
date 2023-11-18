@@ -9,12 +9,10 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(config = MapperConfiguration.class, uses = {PersonMapper.class, MapWorkflowElement.class})
 public interface ProjectMapper extends CommonMapper<ProjectEntity, ProjectDTO> {
-
 
 
     @Override
@@ -27,7 +25,7 @@ public interface ProjectMapper extends CommonMapper<ProjectEntity, ProjectDTO> {
     ProjectDTO toDto(ProjectEntity entity);
 
     @Named("workflowStringToWorkflow")
-    default List<WorkflowEntity> workflowToString(List<String> workflowElements){
+    default List<WorkflowEntity> workflowToString(List<String> workflowElements) {
         return workflowElements.stream()
                 .map(workflow -> WorkflowEntity.builder()
                         .name(workflow)

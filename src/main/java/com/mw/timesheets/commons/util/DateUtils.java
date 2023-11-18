@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 public class DateUtils {
 
-    public static List<LocalDate> getRangeOfDays(LocalDate from, LocalDate to, boolean withBusinessDays , boolean withWeekends, boolean withHolidays){
+    public static List<LocalDate> getRangeOfDays(LocalDate from, LocalDate to, boolean withBusinessDays, boolean withWeekends, boolean withHolidays) {
 
         Predicate<LocalDate> isHoliday = date -> Arrays.stream(HolidayType.values())
                 .map(holidayType -> holidayType.apply(date.getYear()))
@@ -29,7 +29,7 @@ public class DateUtils {
                 .collect(Collectors.toList());
     }
 
-    public static Integer getNormalWorkingDaysCount(LocalDate from, LocalDate to){
+    public static Integer getNormalWorkingDaysCount(LocalDate from, LocalDate to) {
         return getRangeOfDays(from, to, true, false, false).size();
     }
 

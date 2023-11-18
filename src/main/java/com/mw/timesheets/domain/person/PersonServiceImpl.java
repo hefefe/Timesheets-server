@@ -6,8 +6,10 @@ import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -16,21 +18,20 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PersonServiceImpl implements PersonService{
+public class PersonServiceImpl implements PersonService {
 
-    //TODO: photo compressor
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
 
     @Override
-    public List<PersonDTO> getAllUsers(){
+    public List<PersonDTO> getAllUsers() {
         var personList = personRepository.findByDeletedFalse();
         return personMapper.toDtos(personList);
     }
 
     @Override
-    public List<PersonDTO> saveUsers(List<PersonDTO> persons){
-        if (persons == null){
+    public List<PersonDTO> saveUsers(List<PersonDTO> persons) {
+        if (persons == null) {
             throw new CustomErrorException("no persons to save", HttpStatus.BAD_REQUEST);
         }
         var personEntities = personMapper.toEntities(persons).stream()
@@ -41,22 +42,24 @@ public class PersonServiceImpl implements PersonService{
         return personMapper.toDtos(personList);
     }
 
-    private PersonEntity setTempPassword(PersonEntity person){
-        if(person.getUser().getPassword() != null) return person;
+    private PersonEntity setTempPassword(PersonEntity person) {
+        if (person.getUser().getPassword() != null) return person;
         person.getUser().setTempPassword(PasswordUtil.generateTempPassword());
         return person;
     }
 
     @Override
-    public void deleteUsers(List<Long> ids){
-        if (ids == null){
+    public void deleteUsers(List<Long> ids) {
+        if (ids == null || ids.isEmpty() || ids.contains(0L)) {
             throw new CustomErrorException("no given id", HttpStatus.BAD_REQUEST);
         }
         var persons = personRepository.findAllById(ids).stream()
                 .peek(person -> person.setDeleted(true))
                 .peek(person -> person.setDeletedTime(LocalDateTime.now()))
+                .peek(person -> person.setUser(null))
                 .collect(Collectors.toList());
         personRepository.saveAll(persons);
+
     }
 
     @Override
@@ -77,6 +80,15 @@ public class PersonServiceImpl implements PersonService{
     @Override
     public List<String> getGenders() {
         return personRepository.findDistinctSex();
+    }
+
+    @Override
+    @SneakyThrows
+    public List<PersonDTO> savePersonPhoto(Long personId, MultipartFile photo) {
+        var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
+        person.setPhoto(photo.getBytes());
+        personRepository.save(person);
+        return personMapper.toDtos(personRepository.findByDeletedFalse());
     }
 
 

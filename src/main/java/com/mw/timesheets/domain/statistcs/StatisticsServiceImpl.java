@@ -2,6 +2,7 @@ package com.mw.timesheets.domain.statistcs;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.mw.timesheets.commons.IdFromToRequestDTO;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.properties.StatisticsProperties;
 import com.mw.timesheets.commons.util.DateUtils;
@@ -9,7 +10,6 @@ import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
-import com.mw.timesheets.domain.project.TeamEntity;
 import com.mw.timesheets.domain.statistcs.model.employee.PersonStatisticsDTO;
 import com.mw.timesheets.domain.statistcs.model.employee.StoryPointsDoneDTO;
 import com.mw.timesheets.domain.statistcs.model.employee.TasksAndHoursDTO;
@@ -18,6 +18,7 @@ import com.mw.timesheets.domain.statistcs.model.project.ProjectStatisticsDTO;
 import com.mw.timesheets.domain.statistcs.model.project.SprintCompletionDTO;
 import com.mw.timesheets.domain.statistcs.model.project.TasksDoneDTO;
 import com.mw.timesheets.domain.task.TaskEntity;
+import com.mw.timesheets.domain.team.TeamEntity;
 import com.mw.timesheets.domain.timetrack.HistoryRepository;
 import com.mw.timesheets.domain.timetrack.TimeTrackService;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
@@ -48,7 +49,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final HistoryRepository historyRepository;
 
     @Override
-    public PersonStatisticsDTO generateStatisticsForPerson(Long personId, LocalDate from, LocalDate to) {
+    public PersonStatisticsDTO generateStatisticsForPerson(IdFromToRequestDTO statisticsRequestDTO) {
+        var personId = statisticsRequestDTO.getId();
+        var from = statisticsRequestDTO.getFrom();
+        var to = statisticsRequestDTO.getTo();
+
         var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("Person not found", HttpStatus.NOT_FOUND));
         return PersonStatisticsDTO.builder()
                 .yearsOfEmployment(getYearsOfEmployment(person))
@@ -62,7 +67,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public ProjectStatisticsDTO generateStatisticsForProject(Long projectId, LocalDate from, LocalDate to) {
+    public ProjectStatisticsDTO generateStatisticsForProject(IdFromToRequestDTO statisticsRequestDTO) {
+        var projectId = statisticsRequestDTO.getId();
+        var from = statisticsRequestDTO.getFrom();
+        var to = statisticsRequestDTO.getTo();
+
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.NOT_FOUND));
         return ProjectStatisticsDTO.builder()
                 .MoneySpent(moneySpentOnProject(project, from, to))
@@ -77,7 +86,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
 
-    private BigDecimal calculatePayForUser(PersonEntity person, LocalDate from, LocalDate to){
+    private BigDecimal calculatePayForUser(PersonEntity person, LocalDate from, LocalDate to) {
 
         var history = timeTrackService.getHistoryOfGivenUser(person.getId(), from, to);
         var holidaysDaysRange = DateUtils.getRangeOfDays(from, to, false, false, true);
@@ -86,19 +95,19 @@ public class StatisticsServiceImpl implements StatisticsService {
         var work = getWorkingHours(history, timeTrackerHistoryDTO -> !holidaysDaysRange.contains(timeTrackerHistoryDTO.getDateOfActivity()));
         var holidayWork = getWorkingHours(history, timeTrackerHistoryDTO -> holidaysDaysRange.contains(timeTrackerHistoryDTO.getDateOfActivity()));
 
-        var overtime =(double) calculateOvertime(work, person.getWorkDuringWeekInHours(), countOfNormalWorkingDays)/statisticsProperties.getTimeInterval();
-        var normalWork =(work - overtime)/statisticsProperties.getTimeInterval();
-        var holidayHours = (double) holidayWork/statisticsProperties.getTimeInterval();
+        var overtime = (double) calculateOvertime(work, person.getWorkDuringWeekInHours(), countOfNormalWorkingDays) / statisticsProperties.getTimeInterval();
+        var normalWork = (work - overtime) / statisticsProperties.getTimeInterval();
+        var holidayHours = (double) holidayWork / statisticsProperties.getTimeInterval();
         return BigDecimal.valueOf(normalWork * person.getHourlyPay() + overtime * person.getHourlyPay() * statisticsProperties.getOvertimePayRatio() + holidayHours * person.getHourlyPay() * statisticsProperties.getHolidayPayRatio());
 
     }
 
-    private Long calculateOvertime(Long work, Integer workDuringWeekInHours, Integer numberOfDays){
-        var expectedWorkTime = calculateExpectedWorkingHours(workDuringWeekInHours,numberOfDays);
+    private Long calculateOvertime(Long work, Integer workDuringWeekInHours, Integer numberOfDays) {
+        var expectedWorkTime = calculateExpectedWorkingHours(workDuringWeekInHours, numberOfDays);
         return work - expectedWorkTime < 0 ? 0 : work - expectedWorkTime;
     }
 
-    private Long calculateExpectedWorkingHours(Integer workDuringWeekInHours, Integer numberOfDays){
+    private Long calculateExpectedWorkingHours(Integer workDuringWeekInHours, Integer numberOfDays) {
 
         return workDuringWeekInHours.longValue() / statisticsProperties.getWorkingDays() * statisticsProperties.getTimeInterval() * numberOfDays;
     }
@@ -112,26 +121,26 @@ public class StatisticsServiceImpl implements StatisticsService {
         var work = getWorkingHours(history, timeTrackerHistoryDTO -> !holidaysDaysRange.contains(timeTrackerHistoryDTO.getDateOfActivity()));
         var holidayWork = getWorkingHours(history, timeTrackerHistoryDTO -> holidaysDaysRange.contains(timeTrackerHistoryDTO.getDateOfActivity()));
 
-        var overtime = calculateOvertime(work+holidayWork, person.getWorkDuringWeekInHours(), countOfNormalWorkingDays)/statisticsProperties.getTimeInterval();
+        var overtime = calculateOvertime(work + holidayWork, person.getWorkDuringWeekInHours(), countOfNormalWorkingDays) / statisticsProperties.getTimeInterval();
         var normalHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), countOfNormalWorkingDays).doubleValue();
-        return normalHours==0 ? 0 : overtime/normalHours;
+        return normalHours == 0 ? 0 : overtime / normalHours;
     }
 
-    private Long getWorkingHours(HistoryWithTotalTimeDTO history, Predicate<TimeTrackerHistoryDTO> holidayPredicate){
+    private Long getWorkingHours(HistoryWithTotalTimeDTO history, Predicate<TimeTrackerHistoryDTO> holidayPredicate) {
         return history.getHistoryDTOs().stream()
                 .filter(holidayPredicate)
                 .map(TimeTrackerHistoryDTO::getTime)
                 .reduce(0L, Long::sum);
     }
 
-    private Double getCompletionRate(PersonEntity person, LocalDate from, LocalDate to){
+    private Double getCompletionRate(PersonEntity person, LocalDate from, LocalDate to) {
         if (person.getStatistics() == null) return 0.0;
 
         var list = person.getStatistics().stream()
                 .filter(statistics -> DateUtils.getRangeOfDays(from, to, true, false, false).contains(statistics.getDateOfSnapshot()))
                 .toList();
 
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             var completion = person.getStatistics().stream()
                     .collect(Collectors.groupingBy(PersonStatisticsEntity::getProject, Collectors.toList()))
                     .values().stream()
@@ -147,9 +156,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         return getMedian(modifiedList);
     }
 
-    private List<StoryPointsDoneDTO> getStoryPointsDoneByDate(PersonEntity person, LocalDate from, LocalDate to){
+    private List<StoryPointsDoneDTO> getStoryPointsDoneByDate(PersonEntity person, LocalDate from, LocalDate to) {
         List<StoryPointsDoneDTO> spDone = Lists.newArrayList();
-       getTasks(person, from, to).stream()
+        getTasks(person, from, to).stream()
                 .collect(Collectors.groupingBy(TaskEntity::getDoneDate, Collectors.toList()))
                 .forEach((key, value) -> spDone.add(StoryPointsDoneDTO.builder()
                         .date(key)
@@ -160,28 +169,28 @@ public class StatisticsServiceImpl implements StatisticsService {
         return spDone;
     }
 
-    private Integer getYearsOfEmployment(PersonEntity person){
+    private Integer getYearsOfEmployment(PersonEntity person) {
         return Math.toIntExact(ChronoUnit.YEARS.between(person.getDateOfEmployment(), LocalDate.now()));
     }
 
-    private Integer getTotalOfStoryPoints(PersonEntity person, LocalDate from, LocalDate to){
+    private Integer getTotalOfStoryPoints(PersonEntity person, LocalDate from, LocalDate to) {
         return getStoryPointsDoneByDate(person, from, to).stream()
                 .map(StoryPointsDoneDTO::getStoryPoints)
                 .reduce(0, Integer::sum);
     }
 
-    private Double getMedian(List<? extends Number> data){
-        if(!data.isEmpty()){
+    private Double getMedian(List<? extends Number> data) {
+        if (!data.isEmpty()) {
             return 0.0;
         }
 
         DoubleStream sortedAges = data.stream().mapToDouble(Number::doubleValue).sorted();
-        return data.size()%2 == 0?
-                sortedAges.skip(data.size()/2-1).limit(2).average().getAsDouble():
-                sortedAges.skip(data.size()/2).findFirst().getAsDouble();
+        return data.size() % 2 == 0 ?
+                sortedAges.skip(data.size() / 2 - 1).limit(2).average().getAsDouble() :
+                sortedAges.skip(data.size() / 2).findFirst().getAsDouble();
     }
 
-    private List<TasksAndHoursDTO> getTimeSpentOnTasks(PersonEntity person, LocalDate from, LocalDate to){
+    private List<TasksAndHoursDTO> getTimeSpentOnTasks(PersonEntity person, LocalDate from, LocalDate to) {
         return getTasks(person, from, to).stream()
                 .map(task -> TasksAndHoursDTO.builder()
                         .taskName(task.getName())
@@ -192,39 +201,39 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     }
 
-    private Long getTimeOfCompletion(TaskEntity task, PersonEntity person){
+    private Long getTimeOfCompletion(TaskEntity task, PersonEntity person) {
         return person.getHistory().stream()
                 .filter(history -> history.getTaskName().equals(task.getName()))
                 .map(history -> ChronoUnit.MINUTES.between(history.getStarted(), history.getEnded()))
                 .reduce(0L, Long::sum);
     }
 
-    private List<TaskEntity> getTasks(PersonEntity person, LocalDate from, LocalDate to){
+    private List<TaskEntity> getTasks(PersonEntity person, LocalDate from, LocalDate to) {
         return person.getTasks().stream()
                 .filter(task -> task.getDoneDate() != null)
                 .filter(task -> task.getDoneDate().isAfter(from) && task.getDoneDate().isBefore(to))
                 .collect(Collectors.toList());
     }
 
-    private Long timeTracked(ProjectEntity project, LocalDate from ,LocalDate to){
+    private Long timeTracked(ProjectEntity project, LocalDate from, LocalDate to) {
         return historyRepository.getTimeSpentBetweenDates(project.getKey(), from, to);
     }
 
-    private Integer getNumberOfEmployees(ProjectEntity project){
+    private Integer getNumberOfEmployees(ProjectEntity project) {
         return Math.toIntExact(project.getTeam().stream()
                 .map(TeamEntity::getPersons)
                 .mapToLong(Collection::size)
                 .sum());
     }
 
-    private Integer getTasksDone(ProjectEntity project, LocalDate from ,LocalDate to){
+    private Integer getTasksDone(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getTasks().stream()
                 .filter(task -> task.getDoneDate().isAfter(from) && task.getDoneDate().isBefore(to))
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum);
     }
 
-    private Double velocity(ProjectEntity project, LocalDate from, LocalDate to){
+    private Double velocity(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getStatistics().stream()
                 .filter(statistics -> getListOfSprintNumbers(project, from, to).contains(statistics.getSprintNumber()))
                 .collect(Collectors.groupingBy(ProjectStatisticsEntity::getSprintNumber, Collectors.toList()))
@@ -235,16 +244,16 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .orElse(0);
     }
 
-    private List<Integer> getListOfSprintNumbers(ProjectEntity project, LocalDate from, LocalDate to){
+    private List<Integer> getListOfSprintNumbers(ProjectEntity project, LocalDate from, LocalDate to) {
         var weeks = ChronoUnit.WEEKS.between(from, to);
         var numberOfSprints = (int) Math.ceil((double) weeks / project.getSprintDuration().getDuration());
-        return IntStream.range(project.getSprintNumber()-numberOfSprints, project.getSprintNumber())
+        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber())
                 .boxed()
                 .filter(number -> number > 0)
                 .collect(Collectors.toList());
     }
 
-    private BigDecimal moneySpentOnProject(ProjectEntity project, LocalDate from, LocalDate to){
+    private BigDecimal moneySpentOnProject(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getTeam().stream()
                 .map(TeamEntity::getPersons)
                 .map(persons -> persons.stream()
@@ -253,35 +262,35 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private BigDecimal getHistoryForProject(PersonEntity person, ProjectEntity project,LocalDate from, LocalDate to){
+    private BigDecimal getHistoryForProject(PersonEntity person, ProjectEntity project, LocalDate from, LocalDate to) {
         var filteredHistory = person.getHistory().stream()
                 .filter(historyEntity -> project.getKey().equals(historyEntity.getProjectKey()) && historyEntity.getActivityDate().isAfter(from) && historyEntity.getActivityDate().isBefore(to))
                 .toList();
 
         var normalTime = filteredHistory.stream()
-                .filter(historyEntity -> !DateUtils.getRangeOfDays(from, to , false, false, true).contains(historyEntity.getActivityDate()))
+                .filter(historyEntity -> !DateUtils.getRangeOfDays(from, to, false, false, true).contains(historyEntity.getActivityDate()))
                 .map(historyEntity -> ChronoUnit.MINUTES.between(historyEntity.getStarted(), historyEntity.getEnded()))
                 .reduce(0L, Long::sum);
 
         var holidayTime = filteredHistory.stream()
-                .filter(historyEntity -> DateUtils.getRangeOfDays(from, to , false, false, true).contains(historyEntity.getActivityDate()))
+                .filter(historyEntity -> DateUtils.getRangeOfDays(from, to, false, false, true).contains(historyEntity.getActivityDate()))
                 .map(historyEntity -> ChronoUnit.MINUTES.between(historyEntity.getStarted(), historyEntity.getEnded()))
                 .reduce(0L, Long::sum);
-        var overtime = (double) calculateOvertime(normalTime, person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, to))/statisticsProperties.getTimeInterval();
-        var normalWork =(normalTime - overtime)/statisticsProperties.getTimeInterval()/statisticsProperties.getTimeInterval();
-        var holidayHours = holidayTime/statisticsProperties.getTimeInterval()/statisticsProperties.getTimeInterval();
+        var overtime = (double) calculateOvertime(normalTime, person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, to)) / statisticsProperties.getTimeInterval();
+        var normalWork = (normalTime - overtime) / statisticsProperties.getTimeInterval() / statisticsProperties.getTimeInterval();
+        var holidayHours = holidayTime / statisticsProperties.getTimeInterval() / statisticsProperties.getTimeInterval();
 
         return BigDecimal.valueOf(normalWork * person.getHourlyPay() + overtime * person.getHourlyPay() * statisticsProperties.getOvertimePayRatio() + holidayHours * person.getHourlyPay() * statisticsProperties.getHolidayPayRatio());
     }
 
-    private List<BurnDownDTO> getBurnDownChartData(ProjectEntity project){
+    private List<BurnDownDTO> getBurnDownChartData(ProjectEntity project) {
         List<BurnDownDTO> burnDownDTOS = DateUtils.getRangeOfDays(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()),
-                project.getEndOfSprint().toLocalDate(),
-                true,
-                true,
-                true).stream()
-                        .map(date -> BurnDownDTO.builder().date(date).build())
-                                .collect(Collectors.toList());
+                        project.getEndOfSprint().toLocalDate(),
+                        true,
+                        true,
+                        true).stream()
+                .map(date -> BurnDownDTO.builder().date(date).build())
+                .collect(Collectors.toList());
         var committedTasks = project.getTasks().stream()
                 .mapToDouble(TaskEntity::getStoryPoints)
                 .reduce(0, Double::sum);
@@ -297,12 +306,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                 false,
                 true);
 
-        Double subtrahend = committedTasks/DateUtils.getNormalWorkingDaysCount(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()), project.getEndOfSprint().toLocalDate());
+        Double subtrahend = committedTasks / DateUtils.getNormalWorkingDaysCount(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()), project.getEndOfSprint().toLocalDate());
         Double previousCommitted = 0.0;
-        for (BurnDownDTO burndown : burnDownDTOS){
-            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate())){
+        for (BurnDownDTO burndown : burnDownDTOS) {
+            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate())) {
                 burndown.setUncommitted(committedTasks);
-            }else{
+            } else {
                 burndown.setUncommitted(committedTasks);
                 committedTasks -= subtrahend;
             }
@@ -323,7 +332,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         return burnDownDTOS;
     }
 
-    private List<TasksDoneDTO> getTaskDoneByType(ProjectEntity project,LocalDate from, LocalDate to){
+    private List<TasksDoneDTO> getTaskDoneByType(ProjectEntity project, LocalDate from, LocalDate to) {
         List<TasksDoneDTO> tasksDone = Lists.newArrayList();
         project.getTasks().stream()
                 .filter(task -> task.getDoneDate() != null)
@@ -337,7 +346,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     //TODO: get bardzo nieprzyjaźnie zrobiony
-    private List<SprintCompletionDTO> getSprintCompletion(ProjectEntity project){
+    private List<SprintCompletionDTO> getSprintCompletion(ProjectEntity project) {
         List<SprintCompletionDTO> sprintCompletion = Lists.newArrayList();
         project.getStatistics().stream()
                 .collect(Collectors.groupingBy(ProjectStatisticsEntity::getSprintNumber, Collectors.maxBy(Comparator.comparing(ProjectStatisticsEntity::getDay))))

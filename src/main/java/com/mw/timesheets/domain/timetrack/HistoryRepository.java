@@ -1,6 +1,5 @@
 package com.mw.timesheets.domain.timetrack;
 
-import com.mw.timesheets.domain.project.ProjectEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

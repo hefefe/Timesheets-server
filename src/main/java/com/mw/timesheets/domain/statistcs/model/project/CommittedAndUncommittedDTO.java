@@ -1,6 +1,8 @@
 package com.mw.timesheets.domain.statistcs.model.project;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Data

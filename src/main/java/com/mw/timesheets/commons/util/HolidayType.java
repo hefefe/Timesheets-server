@@ -30,8 +30,7 @@ public enum HolidayType implements Function<Integer, LocalDate> {
         return date.apply(year);
     }
 
-    private static LocalDate easterDate(int year)
-    {
+    private static LocalDate easterDate(int year) {
         int a = year % 19,
                 b = year / 100,
                 c = year % 100,

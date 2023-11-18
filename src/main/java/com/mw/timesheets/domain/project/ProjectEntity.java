@@ -5,6 +5,7 @@ import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.type.SprintDurationType;
 import com.mw.timesheets.domain.statistcs.ProjectStatisticsEntity;
 import com.mw.timesheets.domain.task.TaskEntity;
+import com.mw.timesheets.domain.team.TeamEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -51,7 +52,7 @@ public class ProjectEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
-    @Column(columnDefinition="BLOB")
+    @Column(columnDefinition = "BLOB")
     private byte[] photo;
 
     @ManyToMany
@@ -59,7 +60,7 @@ public class ProjectEntity extends CommonEntity {
             name = "team_project",
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "team_id"))
-    private Set<TeamEntity> team  = new HashSet<>();
+    private Set<TeamEntity> team = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<WorkflowEntity> workflow;

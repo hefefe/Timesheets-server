@@ -3,9 +3,9 @@ package com.mw.timesheets.domain.person;
 import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
-import com.mw.timesheets.domain.project.TeamEntity;
 import com.mw.timesheets.domain.statistcs.PersonStatisticsEntity;
 import com.mw.timesheets.domain.task.TaskEntity;
+import com.mw.timesheets.domain.team.TeamEntity;
 import com.mw.timesheets.domain.timetrack.HistoryEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,8 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.validator.internal.util.stereotypes.Lazy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -47,7 +45,7 @@ public class PersonEntity extends CommonEntity {
 
     private Double hourlyPay;
 
-    @Column(columnDefinition="BLOB")
+    @Column(columnDefinition = "BLOB")
     private byte[] photo;
 
     @Enumerated(EnumType.STRING)
