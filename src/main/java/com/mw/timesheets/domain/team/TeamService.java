@@ -3,6 +3,7 @@ package com.mw.timesheets.domain.team;
 import com.mw.timesheets.domain.team.model.TeamDTO;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TeamService {
 
@@ -14,6 +15,6 @@ public interface TeamService {
 
     List<TeamDTO> saveTeam(List<TeamDTO> teamDTO);
 
-    List<TeamEntity> getTeamsByIds(List<Long> ids);
+    Set<TeamEntity> getTeamsByIds(List<Long> ids);
 
 }

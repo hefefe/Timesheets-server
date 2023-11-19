@@ -2,6 +2,7 @@ package com.mw.timesheets.domain.team;
 
 import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
+import com.mw.timesheets.domain.project.ProjectEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -37,6 +38,9 @@ public class TeamEntity extends CommonEntity {
             inverseJoinColumns = @JoinColumn(name = "person_id")
     )
     private Set<PersonEntity> persons = new HashSet<>();
+
+    @ManyToMany(mappedBy = "team")
+    private Set<ProjectEntity> projects = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

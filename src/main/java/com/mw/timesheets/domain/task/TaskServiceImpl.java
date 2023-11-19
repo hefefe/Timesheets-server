@@ -10,10 +10,12 @@ import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
 import com.mw.timesheets.domain.person.type.Roles;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
+import com.mw.timesheets.domain.project.WorkflowRepository;
 import com.mw.timesheets.domain.task.model.TaskDTO;
 import com.mw.timesheets.domain.task.model.TaskTypeDTO;
 import com.mw.timesheets.domain.task.model.WorkflowDTO;
 import com.mw.timesheets.domain.team.TeamEntity;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskTypeRepository taskTypeRepository;
     private final TaskMapper taskMapper;
+    private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
@@ -46,18 +49,21 @@ public class TaskServiceImpl implements TaskService {
         var task = taskMapper.toEntity(taskDTO);
         task.setPerson(personRepository.findById(taskDTO.getPerson().getId()).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST)));
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
+        task.setProject(project);
         task.setKey(generateKeyForTask(project, task.getKey()));
         if (isTaskDone) {
             task.setDoneDate(LocalDate.now());
         } else {
             task.setDoneDate(null);
         }
-
+        task.setTaskType(taskTypeRepository.findById(taskDTO.getTaskType().getId()).orElseThrow(() -> new CustomErrorException("task type does not exist", HttpStatus.BAD_REQUEST)));
+        task.setWorkflow(workflowRepository.findById(taskDTO.getWorkflow().getId()).orElseThrow(() -> new CustomErrorException("workflow element does not exist", HttpStatus.BAD_REQUEST)));
         taskRepository.save(task);
         return taskMapper.toDto(task);
     }
 
     @Override
+    @Transactional
     public List<TaskDTO> getTasksFroProject(Long projectId) {
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
         var tasks = project.getTasks();

@@ -4,10 +4,7 @@ import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.WorkflowEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +27,7 @@ public class TaskEntity extends CommonEntity {
 
     private String name;
 
+    @Column(name = "`key`")
     private String key;
 
     private String description;
@@ -42,7 +40,7 @@ public class TaskEntity extends CommonEntity {
 
     private LocalDateTime deletedTime;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "task_type_id", referencedColumnName = "id")
     private TaskTypeEntity taskType;
 

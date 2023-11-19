@@ -19,9 +19,9 @@ timesheets:
     holiday-pay-ratio: 2.0
     working-days: 5
   jwt:
-    accessTokenValidityTime: 600000
+    accessTokenValidityTime: 600000000
     accessTokenSecret: 'ACCESS_TOKEN_SECRET_TO_CHANGE'
-    refreshTokenValidityTime: 600000
+    refreshTokenValidityTime: 600000000
     refreshTokenSecret: 'REFRESH_TOKEN_SECRET_TO_CHANGE'
     appNAme: 'timesheets'
 logging:

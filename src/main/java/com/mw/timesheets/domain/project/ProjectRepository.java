@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
-    List<ProjectEntity> findByLeadAndNameLike(PersonEntity person, String name);
+    List<ProjectEntity> findByPersonAndNameLike(PersonEntity person, String name);
 
     @Query(value = "SELECT DISTINCT p.* " +
             "FROM project p " +

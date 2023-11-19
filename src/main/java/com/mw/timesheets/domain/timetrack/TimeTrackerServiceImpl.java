@@ -46,7 +46,6 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     }
 
     @Override
-    @Transactional
     public void stopTrackingTime() {
         stopTrackingTime(securityUtils.getPersonByEmail().getId());
     }
@@ -56,7 +55,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         if (!timeTrackRepository.existsByPersonId(id)) {
             throw new CustomErrorException("no tracker to stop", HttpStatus.BAD_REQUEST);
         }
-        var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getPersonByEmail().getUser().getEmail());
+        var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail());
         var history = timeTrackerMapper.timeTrackerToHistoryEntity(tracker);
         history.setEnded(LocalTime.now());
         historyRepository.save(history);

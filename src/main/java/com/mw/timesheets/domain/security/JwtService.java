@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.security;
 
 import com.mw.timesheets.domain.person.PersonEntity;
+import com.mw.timesheets.domain.person.UserEntity;
 import com.mw.timesheets.domain.security.model.AccessTokenDTO;
 import com.mw.timesheets.domain.security.model.AuthenticationDTO;
 import com.mw.timesheets.domain.security.model.CheckTokenDTO;
@@ -14,7 +15,7 @@ public interface JwtService {
 
     String getUsernameFromAccessToken(String token);
 
-    AuthenticationDTO buildAuthenticationToken(PersonEntity userEntity, boolean requiredToChangePassword);
+    AuthenticationDTO buildAuthenticationToken(UserEntity userEntity, boolean requiredToChangePassword);
 
     void blockTokens(TokenDTO tokenDTO);
 }

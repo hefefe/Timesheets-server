@@ -4,6 +4,8 @@ import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
+import com.mw.timesheets.domain.person.UserEntity;
+import com.mw.timesheets.domain.person.UserRepository;
 import com.mw.timesheets.domain.security.model.AuthenticationDTO;
 import com.mw.timesheets.domain.security.model.ChangePasswordDTO;
 import com.mw.timesheets.domain.security.model.LoginDTO;
@@ -19,23 +21,24 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final PersonRepository personRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final PersonRepository personRepository;
 
     //TODO: validator unique email
     @Override
     public AuthenticationDTO auth(LoginDTO loginDTO) {
-        PersonEntity person = personRepository.findByUser_Email(loginDTO.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
+        UserEntity user = userRepository.findByEmail(loginDTO.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
 
         if (loginDTO.getPassword() == null) throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
 
-        if (loginDTO.getPassword().equals(person.getUser().getTempPassword())) {
-            return jwtService.buildAuthenticationToken(person, true);
+        if (loginDTO.getPassword().equals(user.getTempPassword())) {
+            return jwtService.buildAuthenticationToken(user, true);
         }
 
-        if (passwordEncoder.matches(loginDTO.getPassword(), person.getUser().getPassword()) && loginDTO.getPassword() != null) {
-            return jwtService.buildAuthenticationToken(person, false);
+        if (passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()) && loginDTO.getPassword() != null) {
+            return jwtService.buildAuthenticationToken(user, false);
         }
 
         throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);

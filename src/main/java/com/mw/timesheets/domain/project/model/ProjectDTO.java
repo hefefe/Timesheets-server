@@ -26,13 +26,11 @@ public class ProjectDTO {
 
     private LocalDateTime endOfSprint;
 
-    private PersonDTO lead;
+    private PersonDTO person;
 
     private String key;
 
     private SprintDurationType sprintDuration;
-
-    private LocalDateTime startOfSprint;
 
     private byte[] photo;
 

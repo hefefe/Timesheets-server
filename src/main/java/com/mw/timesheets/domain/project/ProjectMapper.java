@@ -16,7 +16,7 @@ public interface ProjectMapper extends CommonMapper<ProjectEntity, ProjectDTO> {
 
 
     @Override
-    @Mapping(target = "lead", ignore = true)
+    @Mapping(target = "person", ignore = true)
     @Mapping(target = "workflow", source = "workflow", qualifiedByName = "workflowStringToWorkflow")
     ProjectEntity toEntity(ProjectDTO dto);
 

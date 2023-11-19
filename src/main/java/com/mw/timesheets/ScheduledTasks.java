@@ -43,7 +43,6 @@ public class ScheduledTasks {
                 .forEach(person -> timeTrackService.stopTrackingTime(person.getId()));
     }
 
-    @Transactional
     public void saveProgress(List<ProjectEntity> projects) {
         var projectStatistics = projects.stream()
                 .filter(project -> !project.isDeleted())
@@ -76,6 +75,7 @@ public class ScheduledTasks {
     public void modifyProjects() {
         var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(LocalDateTime.now());
         if (projects != null) {
+            if(projects.isEmpty()) return ;
             saveProgress(projects);
             savePersonStatistics(projects);
             projectNextIteration(projects);
@@ -121,9 +121,7 @@ public class ScheduledTasks {
                 .filter(project -> !project.isDeleted())
                 .peek(project -> project.setEndOfSprint(calculateEndOfSprint(project)))
                 .peek(project -> project.setSprintNumber(project.getSprintNumber() + 1))
-                .peek(project -> project.setTasks(project.getTasks().stream()
-                        .filter(task -> !Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName()))
-                        .collect(Collectors.toList())))
+                .peek(project -> project.setTasks(project.getTasks().stream().filter(task -> !Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName())).collect(Collectors.toList())))
                 .peek(project -> project.setSprintGoal(""))
                 .collect(Collectors.toList());
         projectRepository.saveAll(modifiedProject);
@@ -134,7 +132,7 @@ public class ScheduledTasks {
         var sprintLength = project.getSprintDuration();
         do {
             endOfSprint = endOfSprint.plusWeeks(sprintLength.getDuration());
-        } while (endOfSprint.isAfter(LocalDateTime.now()));
+        } while (endOfSprint.isBefore(LocalDateTime.now()));
         return endOfSprint;
     }
 

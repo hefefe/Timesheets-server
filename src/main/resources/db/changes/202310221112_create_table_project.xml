@@ -11,7 +11,7 @@
             </column>
             <column name="name" type="varchar(100)"/>
             <column name="key" type="varchar(100)"/>
-            <column name="lead" type="bigint">
+            <column name="person_id" type="bigint">
                 <constraints references="PERSON(id)"
                              foreignKeyName="FK_PROJECT_PERSON"/>
             </column>

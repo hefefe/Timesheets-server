@@ -29,9 +29,9 @@ public class SecurityConfiguration {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/v3/**", "/swagger-ui/**").permitAll())
+                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/v3/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/auth/**", "/token/**").permitAll())
                 .addFilterBefore(new JwtFilter(jwtService, userDetailService, tokenBlacklistService), BasicAuthenticationFilter.class)
                 .build();
     }

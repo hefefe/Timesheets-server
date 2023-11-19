@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -20,14 +21,15 @@ public class SecurityUtilsImpl implements SecurityUtils {
 
     @Override
     public PersonEntity getPersonByEmail() {
-        return personRepository.findByUser_Email(getEmail()).orElseThrow(() -> new CustomErrorException("user not found", HttpStatus.NOT_FOUND));
+        return personRepository.findByUser_Email(getEmail()).orElseThrow(() -> new CustomErrorException("person not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public String getEmail() {
         return Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
                 .map(Authentication::getPrincipal)
-                .map(String.class::cast)
+                .map(UserDetails.class::cast)
+                .map(UserDetails::getUsername)
                 .orElse(null);
     }
 

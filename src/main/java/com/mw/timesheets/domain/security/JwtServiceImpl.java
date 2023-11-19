@@ -5,6 +5,8 @@ import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.properties.JwtProperties;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
+import com.mw.timesheets.domain.person.UserEntity;
+import com.mw.timesheets.domain.person.UserRepository;
 import com.mw.timesheets.domain.security.model.AccessTokenDTO;
 import com.mw.timesheets.domain.security.model.AuthenticationDTO;
 import com.mw.timesheets.domain.security.model.CheckTokenDTO;
@@ -34,12 +36,12 @@ public class JwtServiceImpl implements JwtService {
     public static final String ROLE_CLAIMS = "roles";
     private final TokenBlacklistRepository tokenBlacklistRepository;
     private final JwtProperties jwtProperties;
-    private final PersonRepository personRepository;
+    private final UserRepository userRepository;
 
     @Override
     public AuthenticationDTO refreshToken(TokenDTO tokenDTO) {
         blockTokens(tokenDTO);
-        PersonEntity userEntity = getUserByAccessToken(tokenDTO);
+        UserEntity userEntity = getUserByAccessToken(tokenDTO);
         return buildAuthenticationToken(userEntity, false);
     }
 
@@ -67,7 +69,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public AuthenticationDTO buildAuthenticationToken(PersonEntity userEntity, boolean requiredToChangePassword) {
+    public AuthenticationDTO buildAuthenticationToken(UserEntity userEntity, boolean requiredToChangePassword) {
         return AuthenticationDTO.builder()
                 .accessToken(generateAccessToken(userEntity))
                 .accessTokenValidityTime(jwtProperties.getAccessTokenValidityTime())
@@ -77,13 +79,13 @@ public class JwtServiceImpl implements JwtService {
                 .build();
     }
 
-    private PersonEntity getUserByAccessToken(TokenDTO tokenDTO) {
+    private UserEntity getUserByAccessToken(TokenDTO tokenDTO) {
         String accessTokenUserName = getEmailFromToken(tokenDTO.getAccessToken(), jwtProperties.getAccessTokenSecret());
         String refreshTokenUserName = getEmailFromToken(tokenDTO.getRefreshToken(), jwtProperties.getRefreshTokenSecret());
         if (!StringUtils.pathEquals(accessTokenUserName, refreshTokenUserName)) {
             throw new CustomErrorException("token is invalid", HttpStatus.BAD_REQUEST);
         }
-        return personRepository.findByUser_Email(accessTokenUserName).orElseThrow(() -> new CustomErrorException("person not found", HttpStatus.NOT_FOUND));
+        return userRepository.findByEmail(accessTokenUserName).orElseThrow(() -> new CustomErrorException("user not found", HttpStatus.NOT_FOUND));
     }
 
     private void blockToken(String token, String secret) {
@@ -111,29 +113,29 @@ public class JwtServiceImpl implements JwtService {
         return tokenClaims.getBody().getSubject();
     }
 
-    private String generateAccessToken(PersonEntity personEntity) {
+    private String generateAccessToken(UserEntity user) {
         Date now = new Date();
         Date expirationDate = Date.from(now.toInstant().plus(jwtProperties.getAccessTokenValidityTime(), ChronoUnit.MILLIS));
         Map<String, Object> claims = new HashMap<>();
-        claims.put(ROLE_CLAIMS, personEntity.getUser().getRole().toString());
+        claims.put(ROLE_CLAIMS, user.getRole().toString());
         return Jwts.builder()
                 .addClaims(claims)
                 .setIssuer(jwtProperties.getAppName())
                 .setIssuedAt(new Date())
                 .setExpiration(expirationDate)
-                .setSubject(personEntity.getUser().getEmail())
+                .setSubject(user.getEmail())
                 .signWith(HS512, jwtProperties.getAccessTokenSecret())
                 .compact();
     }
 
-    private String generateRefreshToken(PersonEntity personEntity) {
+    private String generateRefreshToken(UserEntity user) {
         Date now = new Date();
         Date expirationDate = Date.from(now.toInstant().plus(jwtProperties.getRefreshTokenValidityTime(), ChronoUnit.MILLIS));
         return Jwts.builder()
                 .setIssuer(jwtProperties.getAppName())
                 .setIssuedAt(new Date())
                 .setExpiration(expirationDate)
-                .setSubject(personEntity.getUser().getEmail())
+                .setSubject(user.getEmail())
                 .signWith(HS512, jwtProperties.getRefreshTokenSecret())
                 .compact();
     }

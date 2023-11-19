@@ -25,17 +25,17 @@ import java.util.Set;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE PROJECT SET deleted = true, deleted_time = NOW() WHERE id=?")
 @Table(name = "PROJECT")
 public class ProjectEntity extends CommonEntity {
 
     private String name;
 
+    @Column(name = "`key`")
     private String key;
 
     @OneToOne
-    @JoinColumn(name = "lead", referencedColumnName = "id")
-    private PersonEntity lead;
+    @JoinColumn(name = "person_id", referencedColumnName = "id")
+    private PersonEntity person;
 
     @Enumerated(EnumType.STRING)
     private SprintDurationType sprintDuration;
@@ -55,7 +55,7 @@ public class ProjectEntity extends CommonEntity {
     @Column(columnDefinition = "BLOB")
     private byte[] photo;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "team_project",
             joinColumns = @JoinColumn(name = "project_id"),

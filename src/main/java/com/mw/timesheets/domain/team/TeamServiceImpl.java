@@ -2,12 +2,16 @@ package com.mw.timesheets.domain.team;
 
 import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.CommonEntity;
+import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.domain.person.PersonService;
 import com.mw.timesheets.domain.team.model.TeamDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -30,7 +34,10 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void deleteTeam(Long id) {
-        teamRepository.deleteById(id);
+        var team = teamRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
+        team.setDeleted(true);
+        team.setDeletedTime(LocalDateTime.now());
+        teamRepository.save(team);
     }
 
     @Override
@@ -44,7 +51,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
-    public List<TeamEntity> getTeamsByIds(List<Long> ids) {
-        return teamRepository.findAllById(ids);
+    public Set<TeamEntity> getTeamsByIds(List<Long> ids) {
+        return teamRepository.findAllById(ids).stream().collect(Collectors.toSet());
     }
 }

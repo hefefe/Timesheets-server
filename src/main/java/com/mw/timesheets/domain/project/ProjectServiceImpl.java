@@ -5,10 +5,12 @@ import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
 import com.mw.timesheets.domain.team.TeamService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,24 +24,31 @@ public class ProjectServiceImpl implements ProjectService {
     private final TeamService teamService;
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
+    private final WorkflowRepository workflowRepository;
 
     //TODO: sprint number tak, aby brał pod uwage za lub przed LocalDateTime.now()
     @Override
     public ProjectDTO saveProject(ProjectDTO projectDTO) {
+
         var project = ProjectEntity.builder()
                 .name(projectDTO.getName())
                 .key(getKeyFromName(projectDTO.getName()))
                 .photo(projectDTO.getPhoto())
-                .workflow(projectDTO.getWorkflow().stream()
-                        .map(workflow -> WorkflowEntity.builder().name(workflow).build())
-                        .collect(Collectors.toList()))
-                .lead(securityUtils.getPersonByEmail())
+                .person(securityUtils.getPersonByEmail())
                 .sprintDuration(projectDTO.getSprintDuration())
-                .endOfSprint(projectDTO.getStartOfSprint().plusWeeks(projectDTO.getSprintDuration().getDuration()))
-                .team(Sets.newHashSet(teamService.getTeamsByIds(projectDTO.getTeams())))
+                .endOfSprint(projectDTO.getEndOfSprint())
+                .team(teamService.getTeamsByIds(projectDTO.getTeams()))
+                .sprintNumber(0)
+                .taskNumber(1)
                 .build();
-        projectRepository.save(project);
-        return null;
+        var savedProject = projectRepository.save(project);
+        List<WorkflowEntity> workflowElements = projectDTO.getWorkflow().stream()
+                .map(workflow -> WorkflowEntity.builder().name(workflow).project(savedProject).build())
+                .collect(Collectors.toList());
+        workflowRepository.saveAll(workflowElements);
+        project.setWorkflow(workflowElements);
+        var savedProjectAgain = projectRepository.save(savedProject);
+        return projectMapper.toDto(projectRepository.findById(savedProjectAgain.getId()).orElse(null));
     }
 
     @Override
@@ -49,7 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
         switch (securityUtils.getRole()) {
             case ROLE_ADMIN -> projects = projectRepository.findAll();
             case ROLE_LEADER ->
-                    projects = projectRepository.findByLeadAndNameLike(securityUtils.getPersonByEmail(), nameLike);
+                    projects = projectRepository.findByPersonAndNameLike(securityUtils.getPersonByEmail(), nameLike);
             case ROLE_USER ->
                     projects = projectRepository.findProjectByPersonIdAndName(securityUtils.getPersonByEmail().getId(), nameLike);
         }
@@ -58,7 +67,10 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public void deleteProject(Long id) {
-        projectRepository.deleteById(id);
+        var project = projectRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
+        project.setDeleted(true);
+        project.setDeletedTime(LocalDateTime.now());
+        projectRepository.save(project);
     }
 
     @Override
@@ -74,7 +86,7 @@ public class ProjectServiceImpl implements ProjectService {
     private String getKeyFromName(String name) {
         String[] arr = name.split(" ");
         return Arrays.stream(arr)
-                .map(word -> word.substring(0, 0).toUpperCase())
+                .map(word -> word.substring(0, 1).toUpperCase())
                 .collect(Collectors.joining());
     }
 
