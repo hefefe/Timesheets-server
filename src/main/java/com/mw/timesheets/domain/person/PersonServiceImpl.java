@@ -16,11 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
+
 @Service
 @RequiredArgsConstructor
 public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
+    private final UserRepository userRepository;
     private final PersonMapper personMapper;
 
     @Override
@@ -39,6 +42,13 @@ public class PersonServiceImpl implements PersonService {
                 .peek(person -> person.getUser().setRole(person.getPosition().getRole()))
                 .collect(Collectors.toList());
         List<PersonEntity> personList = personRepository.saveAll(personEntities);
+
+        var users = personList.stream()
+                .peek(person -> person.getUser().setPerson(person))
+                .map(PersonEntity::getUser)
+                .collect(Collectors.toSet());
+        userRepository.saveAll(users);
+
         return personMapper.toDtos(personList);
     }
 
@@ -55,7 +65,7 @@ public class PersonServiceImpl implements PersonService {
         }
         var persons = personRepository.findAllById(ids).stream()
                 .peek(person -> person.setDeleted(true))
-                .peek(person -> person.setDeletedTime(LocalDateTime.now()))
+                .peek(person -> person.setDeletedTime(getSystemTime()))
                 .peek(person -> person.setUser(null))
                 .collect(Collectors.toList());
         personRepository.saveAll(persons);

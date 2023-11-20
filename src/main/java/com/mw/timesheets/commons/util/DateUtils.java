@@ -1,7 +1,6 @@
 package com.mw.timesheets.commons.util;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -13,19 +12,17 @@ public class DateUtils {
 
     public static List<LocalDate> getRangeOfDays(LocalDate from, LocalDate to, boolean withBusinessDays, boolean withWeekends, boolean withHolidays) {
 
-        Predicate<LocalDate> isHoliday = date -> Arrays.stream(HolidayType.values())
-                .map(holidayType -> holidayType.apply(date.getYear()))
-                .toList().contains(date) && withHolidays;
+        Predicate<LocalDate> isHoliday = date -> (Arrays.stream(HolidayType.values()).map(holidayType -> holidayType.apply(date.getYear())).toList().contains(date)) && withHolidays;
 
         Predicate<LocalDate> isWeekend = date -> (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) && withWeekends;
 
-        Predicate<LocalDate> isBusinessDay = isHoliday.and(isWeekend).negate().and(localDate -> withBusinessDays);
+        Predicate<LocalDate> isBusinessDay = date -> from.datesUntil(to.plusDays(1))
+                .filter(datee -> !Arrays.stream(HolidayType.values()).map(holidayType -> holidayType.apply(date.getYear())).toList().contains(date))
+                .filter(datee -> !(date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY))
+                .filter(datee -> withBusinessDays).toList().contains(date);
 
-        long daysBetween = ChronoUnit.DAYS.between(from, to);
-
-        return Stream.iterate(from, date -> date.plusDays(1))
-                .limit(daysBetween)
-                .filter(isBusinessDay.or(isWeekend).or(isBusinessDay))
+        return from.datesUntil(to.plusDays(1))
+                .filter(isHoliday.or(isWeekend).or(isBusinessDay))
                 .collect(Collectors.toList());
     }
 
@@ -33,5 +30,7 @@ public class DateUtils {
         return getRangeOfDays(from, to, true, false, false).size();
     }
 
-
+    public static LocalDateTime getSystemTime(){
+        return LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+    }
 }

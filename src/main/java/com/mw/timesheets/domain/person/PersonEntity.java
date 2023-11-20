@@ -66,7 +66,6 @@ public class PersonEntity extends CommonEntity {
     @JoinColumn(name = "contact_id", referencedColumnName = "id")
     private ContactEntity contact;
 
-    //TODO: zeby usuniety użytkownik nie mogl sie logowac
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;

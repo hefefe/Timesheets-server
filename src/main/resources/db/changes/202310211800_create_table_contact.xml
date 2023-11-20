@@ -12,5 +12,9 @@
             <column name="email" type="varchar(150)"/>
             <column name="phone" type="varchar(50)"/>
         </createTable>
+        <insert tableName="CONTACT">
+            <column name="email" value="admin@gmail.com"/>
+            <column name="phone" value="+48 123 456 789"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

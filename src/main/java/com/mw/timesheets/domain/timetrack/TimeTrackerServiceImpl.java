@@ -19,7 +19,10 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +43,8 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
 
         var startTimer = timeTrackerMapper.toEntity(timeTrackerData);
         startTimer.setPerson(securityUtils.getPersonByEmail());
-        startTimer.setStarted(LocalTime.now());
-        startTimer.setActivityDate(LocalDate.now());
+        startTimer.setStarted(getSystemTime().toLocalTime());
+        startTimer.setActivityDate(getSystemTime().toLocalDate());
         timeTrackRepository.save(startTimer);
     }
 
@@ -56,18 +59,21 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
             throw new CustomErrorException("no tracker to stop", HttpStatus.BAD_REQUEST);
         }
         var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail());
+        var person = securityUtils.getPersonByEmail();
         var history = timeTrackerMapper.timeTrackerToHistoryEntity(tracker);
-        history.setEnded(LocalTime.now());
+        history.setPerson(person);
+        history.setEnded(getSystemTime().toLocalTime());
         historyRepository.save(history);
         timeTrackRepository.deleteById(tracker.getId());
     }
 
     @Override
-    public HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long personId, LocalDate from, LocalDate to) {
+    public HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long personId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
         var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
 
         var historyMap = person.getHistory().stream()
-                .filter(history -> history.getActivityDate().isAfter(to) && history.getActivityDate().isBefore(from))
+                .filter(history -> history.getActivityDate().isBefore(to.plusDays(1)) && history.getActivityDate().isAfter(from.minusDays(1)))
+                .filter(predicate)
                 .map(historyMapper::toDto)
                 .peek(history -> history.setTime(getTimeDiffInMinutes(history.getWorkFrom(), history.getWorkTo())))
                 .collect(Collectors.groupingBy(TrackedDataDTO::getActivityDate));
@@ -83,9 +89,9 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
 
     @Override
     public HistoryWithTotalTimeDTO getHistoryOfUser() {
-        var monday = LocalDate.now().with(DayOfWeek.MONDAY);
-        var sunday = LocalDate.now().with(DayOfWeek.SUNDAY);
-        return getHistoryOfGivenUser(securityUtils.getPersonByEmail().getId(), monday, sunday);
+        var monday = getSystemTime().toLocalDate().with(DayOfWeek.MONDAY);
+        var sunday = getSystemTime().toLocalDate().with(DayOfWeek.SUNDAY);
+        return getHistoryOfGivenUser(securityUtils.getPersonByEmail().getId(), monday, sunday, historyEntity -> true);
     }
 
     private List<TimeTrackerHistoryDTO> mapToTimeTrackerHistoryDto(Map<LocalDate, List<TrackedDataDTO>> groupedHistory) {

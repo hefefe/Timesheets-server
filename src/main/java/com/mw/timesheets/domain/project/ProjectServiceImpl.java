@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
+
 @RequiredArgsConstructor
 @Service
 public class ProjectServiceImpl implements ProjectService {
@@ -69,7 +71,7 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Long id) {
         var project = projectRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
         project.setDeleted(true);
-        project.setDeletedTime(LocalDateTime.now());
+        project.setDeletedTime(getSystemTime());
         projectRepository.save(project);
     }
 

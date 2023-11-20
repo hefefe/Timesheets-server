@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
+
 @Configuration
 @EnableScheduling
 @RequiredArgsConstructor
@@ -47,7 +49,7 @@ public class ScheduledTasks {
         var projectStatistics = projects.stream()
                 .filter(project -> !project.isDeleted())
                 .map(project -> ProjectStatisticsEntity.builder()
-                        .day(LocalDate.now())
+                        .day(getSystemTime().toLocalDate())
                         .project(project)
                         .sprintNumber(project.getSprintNumber())
                         .storyPointsCommitted(calculateCommittedStoryPoints(project))
@@ -73,7 +75,7 @@ public class ScheduledTasks {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void modifyProjects() {
-        var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(LocalDateTime.now());
+        var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime());
         if (projects != null) {
             if(projects.isEmpty()) return ;
             saveProgress(projects);
@@ -91,7 +93,7 @@ public class ScheduledTasks {
                         .map(person -> PersonStatisticsEntity.builder()
                                 .person(person)
                                 .project(project)
-                                .dateOfSnapshot(LocalDate.now())
+                                .dateOfSnapshot(getSystemTime().toLocalDate())
                                 .completionRate(calculateCompletionRate(person, project))
                                 .sprintNumber(project.getSprintNumber())
                                 .build())
@@ -132,7 +134,7 @@ public class ScheduledTasks {
         var sprintLength = project.getSprintDuration();
         do {
             endOfSprint = endOfSprint.plusWeeks(sprintLength.getDuration());
-        } while (endOfSprint.isBefore(LocalDateTime.now()));
+        } while (endOfSprint.isBefore(getSystemTime()));
         return endOfSprint;
     }
 

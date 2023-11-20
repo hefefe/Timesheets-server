@@ -22,4 +22,8 @@ public interface TaskService {
     List<BasicPersonDataDTO> getPeopleWorkingOnProject(Long projectId);
 
     List<TaskTypeDTO> getTaskTypes();
+
+    List<TaskDTO> getTasksByProjectAndUser(Long projectId);
+
+    TaskDTO changeWorkFlow(Long taskId, Long workFlowId);
 }

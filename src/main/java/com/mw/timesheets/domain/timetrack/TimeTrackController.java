@@ -29,7 +29,7 @@ public class TimeTrackController {
 
     @PostMapping("history")
     public ResponseEntity<HistoryWithTotalTimeDTO> getHistoryOfGivenUser(@RequestBody IdFromToRequestDTO idFromToRequestDTO) {
-        return ResponseEntity.ok(timeTrackService.getHistoryOfGivenUser(idFromToRequestDTO.getId(), idFromToRequestDTO.getFrom(), idFromToRequestDTO.getTo()));
+        return ResponseEntity.ok(timeTrackService.getHistoryOfGivenUser(idFromToRequestDTO.getId(), idFromToRequestDTO.getFrom(), idFromToRequestDTO.getTo(), historyEntity -> true));
     }
 
     @GetMapping("history")

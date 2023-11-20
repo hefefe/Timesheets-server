@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
+
 @RequiredArgsConstructor
 @Service
 public class TeamServiceImpl implements TeamService {
@@ -36,7 +38,7 @@ public class TeamServiceImpl implements TeamService {
     public void deleteTeam(Long id) {
         var team = teamRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
         team.setDeleted(true);
-        team.setDeletedTime(LocalDateTime.now());
+        team.setDeletedTime(getSystemTime());
         teamRepository.save(team);
     }
 

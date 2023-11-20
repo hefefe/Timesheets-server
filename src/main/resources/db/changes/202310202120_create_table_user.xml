@@ -14,5 +14,11 @@
             <column name="password" type="varchar(512)"/>
             <column name="temp_password" type="varchar(512)"/>
         </createTable>
+        <insert tableName="USER">
+            <column name="email" value="admin@gmail.com"/>
+            <column name="role" value="ROLE_ADMIN"/>
+            <column name="password" value=""/>
+            <column name="temp_password" value="zaq1@WSX"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

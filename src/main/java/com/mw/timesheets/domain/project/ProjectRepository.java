@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.project;
 
 import com.mw.timesheets.domain.person.PersonEntity;
+import com.mw.timesheets.domain.project.model.ProjectDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,6 +23,5 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
     List<ProjectEntity> findProjectByPersonIdAndName(@Param("personId") Long id, @Param("name") String name);
 
     List<ProjectEntity> findByEndOfSprintBeforeAndDeletedFalse(LocalDateTime dateTime);
-
 
 }

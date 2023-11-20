@@ -21,7 +21,7 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectDTO>> getProjects(@RequestParam String name) {
+    public ResponseEntity<List<ProjectDTO>> getProjects(@RequestParam(required = false) String name) {
         return ResponseEntity.ok(projectService.getProjects(name));
     }
 
@@ -35,5 +35,4 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO> getProject(@PathVariable Long id) {
         return ResponseEntity.ok(projectService.getProject(id));
     }
-
 }
