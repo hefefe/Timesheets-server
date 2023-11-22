@@ -34,8 +34,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/setPassword")
-    public ResponseEntity<Void> logout(@RequestBody ChangePasswordDTO changePasswordDTO) {
+    public ResponseEntity<AuthenticationDTO> logout(@RequestBody ChangePasswordDTO changePasswordDTO) {
         authenticationService.setUserPassword(changePasswordDTO);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(authenticationService.setUserPassword(changePasswordDTO));
     }
 }

@@ -13,5 +13,5 @@ public interface AuthenticationService {
 
     void resetUserPassword(Long id);
 
-    void setUserPassword(ChangePasswordDTO changePasswordDTO);
+    AuthenticationDTO setUserPassword(ChangePasswordDTO changePasswordDTO);
 }

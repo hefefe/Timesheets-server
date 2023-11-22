@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,7 +36,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (loginDTO.getPassword() == null) throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
 
         if (loginDTO.getPassword().equals(user.getTempPassword())) {
-            return jwtService.buildAuthenticationToken(user, true);
+            return AuthenticationDTO.builder().requiredToChangePassword(true).build();
         }
 
         if (passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()) && loginDTO.getPassword() != null) {
@@ -62,25 +64,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void setUserPassword(ChangePasswordDTO changePassword) {
-        PersonEntity person = personRepository.findByUser_Email(changePassword.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
-        if (changePassword.getConfirmPassword() != null && changePassword.getPassword() != null) {
-            if (!changePassword.getConfirmPassword().equals(changePassword.getPassword()))
-                throw new CustomErrorException("password missmatch", HttpStatus.BAD_REQUEST);
-            person.getUser().setTempPassword(null);
-            person.getUser().setPassword(passwordEncoder.encode(changePassword.getPassword()));
-        }
-        personRepository.save(person);
-    }
+    public AuthenticationDTO setUserPassword(ChangePasswordDTO changePassword) {
+        if (changePassword.getConfirmPassword() == null || changePassword.getPassword() == null || changePassword.getTempPassword() == null) throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
+        if (!changePassword.getConfirmPassword().equals(changePassword.getPassword())) throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
 
-//    @Override
-//    public void register(RegisterUserDTO registerUserDTO) {
-//        userService.findOptionalUserName(registerUserDTO.getUsername())
-//                .ifPresent(user -> throwUserIsPresent(user.getUsername()));
-//        userService.createUser(registerUserDTO.getUsername(), registerUserDTO.getEmail(), registerUserDTO.getPassword());
-//    }
-//
-//    private void throwUserIsPresent(String username){
-//        throw new UserAlreadyExistsException(username);
-//    }
+        PersonEntity person = personRepository.findByUser_Email(changePassword.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
+        if (!Objects.equals(person.getUser().getTempPassword(), changePassword.getTempPassword()))  throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
+
+        person.getUser().setTempPassword(null);
+        person.getUser().setPassword(passwordEncoder.encode(changePassword.getPassword()));
+        var savedPerson = personRepository.save(person);
+        return jwtService.buildAuthenticationToken(savedPerson.getUser(), false);
+    }
 }

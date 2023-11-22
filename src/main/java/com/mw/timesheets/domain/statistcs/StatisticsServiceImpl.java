@@ -117,7 +117,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 time -> time - expectedHourTime <= 0 ? time : expectedHourTime);
         var overTime = (double) getWorkingHours(history,
                 timeTrackerHistoryDTO -> workingDays.contains(timeTrackerHistoryDTO.getDateOfActivity()),
-                time -> time - expectedHourTime <= 0 ? time : time - expectedHourTime);
+                time -> time - expectedHourTime > 0 ? time - expectedHourTime : 0);
         var holidayWork = (double) getWorkingHours(history, timeTrackerHistoryDTO -> holidaysDaysRange.contains(timeTrackerHistoryDTO.getDateOfActivity()), time -> time);
         var weekendWork = (double) getWorkingHours(history, timeTrackerHistoryDTO -> weekendDays.contains(timeTrackerHistoryDTO.getDateOfActivity()), time -> time);
 
@@ -142,8 +142,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private Double overTimeRatioForPerson(PersonEntity person, LocalDate from, LocalDate to) {
         var workingHoursMap = getWorkingHoursMap(person, from, to, historyEntity -> true);
-        var expectedWorkingHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, to));
-        return  (workingHoursMap.get(OVERTIME_HOURS) + workingHoursMap.get(HOLIDAY_HOURS) + workingHoursMap.get(WEEKEND_HOURS)) / expectedWorkingHours;
+        var expectedWorkingHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, LocalDate.now()));
+        return  (workingHoursMap.get(OVERTIME_HOURS) + workingHoursMap.get(HOLIDAY_HOURS) + workingHoursMap.get(WEEKEND_HOURS)) / expectedWorkingHours * 100;
     }
 
     private Double getCompletionRate(PersonEntity person, LocalDate from, LocalDate to) {
@@ -162,11 +162,11 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .collect(Collectors.toList());
 
             if (completion.isEmpty()) return 0.0;
-            return getMedian(completion);
+            return getMedian(completion) * 100;
         }
 
         var modifiedList = list.stream().map(PersonStatisticsEntity::getCompletionRate).collect(Collectors.toList());
-        return getMedian(modifiedList);
+        return getMedian(modifiedList) * 100;
     }
 
     private List<StoryPointsDoneDTO> getStoryPointsDoneByDate(PersonEntity person, LocalDate from, LocalDate to) {
@@ -224,7 +224,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private List<TaskEntity> getTasks(PersonEntity person, LocalDate from, LocalDate to) {
         return person.getTasks().stream()
                 .filter(task -> task.getDoneDate() != null)
-                .filter(task -> task.getDoneDate().isAfter(from) && task.getDoneDate().isBefore(to))
+                .filter(task -> task.getDoneDate().isAfter(from.minusDays(1)) && task.getDoneDate().isBefore(to.plusDays(1)))
                 .collect(Collectors.toList());
     }
 
@@ -241,7 +241,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private Integer getTasksDone(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getTasks().stream()
-                .filter(task -> task.getDoneDate().isAfter(from) && task.getDoneDate().isBefore(to))
+                .filter(task -> task.getDoneDate().isAfter(from.minusDays(1)) && task.getDoneDate().isBefore(to.plusDays(1)))
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum);
     }
@@ -260,7 +260,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private List<Integer> getListOfSprintNumbers(ProjectEntity project, LocalDate from, LocalDate to) {
         var weeks = ChronoUnit.WEEKS.between(from, to);
         var numberOfSprints = (int) Math.ceil((double) weeks / project.getSprintDuration().getDuration());
-        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber())
+        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber()+1)
                 .boxed()
                 .filter(number -> number > 0)
                 .collect(Collectors.toList());
@@ -307,6 +307,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 burndown.setUncommitted(committedTasks);
                 committedTasks -= subtrahend;
             }
+            //TODO: po coś jest getDoneDate w taskach + to nie jest burnUp chart
             burndown.setCommitted(project.getStatistics().stream()
                     .filter(statistics -> statistics.getSprintNumber().equals(project.getSprintNumber()) && statistics.getDay().isEqual(burndown.getDate()))
                     .mapToDouble(ProjectStatisticsEntity::getStoryPointsDone)
@@ -328,7 +329,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         List<TasksDoneDTO> tasksDone = Lists.newArrayList();
         project.getTasks().stream()
                 .filter(task -> task.getDoneDate() != null)
-                .filter(task -> task.getDoneDate().isAfter(from) && task.getDoneDate().isBefore(to))
+                .filter(task -> task.getDoneDate().isAfter(from.minusDays(1)) && task.getDoneDate().isBefore(to.plusDays(1)))
                 .collect(Collectors.groupingBy(TaskEntity::getTaskType, Collectors.counting()))
                 .forEach((key, value) -> tasksDone.add(TasksDoneDTO.builder()
                         .type(key.getName())

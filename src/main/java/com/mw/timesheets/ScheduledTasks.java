@@ -118,7 +118,6 @@ public class ScheduledTasks {
     }
 
     private void projectNextIteration(List<ProjectEntity> projects) {
-        //TODO: sprawdzić ostatni element listy project workflow, bo może być przypał
         var modifiedProject = projects.stream()
                 .filter(project -> !project.isDeleted())
                 .peek(project -> project.setEndOfSprint(calculateEndOfSprint(project)))

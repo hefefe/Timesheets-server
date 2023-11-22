@@ -3,6 +3,7 @@ package com.mw.timesheets.domain.timetrack;
 import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
+import com.mw.timesheets.commons.util.DateUtils;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
@@ -44,7 +45,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var startTimer = timeTrackerMapper.toEntity(timeTrackerData);
         startTimer.setPerson(securityUtils.getPersonByEmail());
         startTimer.setStarted(getSystemTime().toLocalTime());
-        startTimer.setActivityDate(getSystemTime().toLocalDate());
+        startTimer.setActivityDate(getSystemTime().toLocalDate().plusDays(1));
         timeTrackRepository.save(startTimer);
     }
 
@@ -62,7 +63,8 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var person = securityUtils.getPersonByEmail();
         var history = timeTrackerMapper.timeTrackerToHistoryEntity(tracker);
         history.setPerson(person);
-        history.setEnded(getSystemTime().toLocalTime());
+        history.setEnded(getSystemTime().toLocalTime().plusHours(1));
+        history.setActivityDate(history.getActivityDate().plusDays(1));
         historyRepository.save(history);
         timeTrackRepository.deleteById(tracker.getId());
     }
@@ -70,8 +72,16 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     @Override
     public HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long personId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
         var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
+        var timer = timeTrackRepository.findByPersonUserEmail(person.getUser().getEmail());
+        var timerToHistory = timeTrackerMapper.timeTrackerToHistoryEntity(timer);
+        var historyFromPerson = person.getHistory();
 
-        var historyMap = person.getHistory().stream()
+        if (timerToHistory != null) {
+            timerToHistory.setEnded(DateUtils.getSystemTime().toLocalTime());
+            historyFromPerson.add(timerToHistory);
+        }
+
+        var historyMap = historyFromPerson.stream()
                 .filter(history -> history.getActivityDate().isBefore(to.plusDays(1)) && history.getActivityDate().isAfter(from.minusDays(1)))
                 .filter(predicate)
                 .map(historyMapper::toDto)
