@@ -3,8 +3,6 @@ package com.mw.timesheets.domain.security;
 
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.properties.JwtProperties;
-import com.mw.timesheets.domain.person.PersonEntity;
-import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.person.UserEntity;
 import com.mw.timesheets.domain.person.UserRepository;
 import com.mw.timesheets.domain.security.model.AccessTokenDTO;

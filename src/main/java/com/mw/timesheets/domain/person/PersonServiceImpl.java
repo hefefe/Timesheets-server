@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,7 +36,11 @@ public class PersonServiceImpl implements PersonService {
         if (persons == null) {
             throw new CustomErrorException("no persons to save", HttpStatus.BAD_REQUEST);
         }
-        var personEntities = personMapper.toEntities(persons).stream()
+        var filterPerson = persons.stream()
+                .filter(personDTO -> !personRepository.existsByUserEmail(personDTO.getUser().getEmail()))
+                .collect(Collectors.toList());
+
+        var personEntities = personMapper.toEntities(filterPerson).stream()
                 .peek(this::setTempPassword)
                 .peek(person -> person.getUser().setRole(person.getPosition().getRole()))
                 .collect(Collectors.toList());

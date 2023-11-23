@@ -28,7 +28,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final PersonRepository personRepository;
 
-    //TODO: validator unique email
     @Override
     public AuthenticationDTO auth(LoginDTO loginDTO) {
         UserEntity user = userRepository.findByEmail(loginDTO.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
@@ -65,11 +64,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationDTO setUserPassword(ChangePasswordDTO changePassword) {
-        if (changePassword.getConfirmPassword() == null || changePassword.getPassword() == null || changePassword.getTempPassword() == null) throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
-        if (!changePassword.getConfirmPassword().equals(changePassword.getPassword())) throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
+        if (changePassword.getConfirmPassword() == null || changePassword.getPassword() == null || changePassword.getTempPassword() == null)
+            throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
+        if (!changePassword.getConfirmPassword().equals(changePassword.getPassword()))
+            throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
 
         PersonEntity person = personRepository.findByUser_Email(changePassword.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
-        if (!Objects.equals(person.getUser().getTempPassword(), changePassword.getTempPassword()))  throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
+        if (!Objects.equals(person.getUser().getTempPassword(), changePassword.getTempPassword()))
+            throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
 
         person.getUser().setTempPassword(null);
         person.getUser().setPassword(passwordEncoder.encode(changePassword.getPassword()));

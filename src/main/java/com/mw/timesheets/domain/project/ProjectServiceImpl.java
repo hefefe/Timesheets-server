@@ -1,16 +1,13 @@
 package com.mw.timesheets.domain.project;
 
-import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
 import com.mw.timesheets.domain.team.TeamService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +25,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectMapper projectMapper;
     private final WorkflowRepository workflowRepository;
 
-    //TODO: sprint number tak, aby brał pod uwage za lub przed LocalDateTime.now()
     @Override
     public ProjectDTO saveProject(ProjectDTO projectDTO) {
 

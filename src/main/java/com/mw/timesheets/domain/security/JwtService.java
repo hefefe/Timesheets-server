@@ -1,6 +1,5 @@
 package com.mw.timesheets.domain.security;
 
-import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.UserEntity;
 import com.mw.timesheets.domain.security.model.AccessTokenDTO;
 import com.mw.timesheets.domain.security.model.AuthenticationDTO;

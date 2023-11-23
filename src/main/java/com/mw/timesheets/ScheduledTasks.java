@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -77,7 +76,7 @@ public class ScheduledTasks {
     public void modifyProjects() {
         var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime());
         if (projects != null) {
-            if(projects.isEmpty()) return ;
+            if (projects.isEmpty()) return;
             saveProgress(projects);
             savePersonStatistics(projects);
             projectNextIteration(projects);

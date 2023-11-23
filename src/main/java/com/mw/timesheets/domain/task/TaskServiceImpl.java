@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
         task.setKey(generateKeyForTask(project, task.getKey()));
         if (isTaskDone && task.getDoneDate() == null) {
             task.setDoneDate(getSystemTime().toLocalDate());
-        } else if(!isTaskDone) {
+        } else if (!isTaskDone) {
             task.setDoneDate(null);
         }
         taskRepository.save(task);
@@ -128,7 +127,7 @@ public class TaskServiceImpl implements TaskService {
         task.setWorkflow(workFlow);
         if (isTaskDone && task.getDoneDate() == null) {
             task.setDoneDate(getSystemTime().toLocalDate());
-        } else if(!isTaskDone) {
+        } else if (!isTaskDone) {
             task.setDoneDate(null);
         }
         taskRepository.save(task);

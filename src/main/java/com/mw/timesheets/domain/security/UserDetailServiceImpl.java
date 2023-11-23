@@ -2,7 +2,6 @@ package com.mw.timesheets.domain.security;
 
 import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
-import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.person.UserEntity;
 import com.mw.timesheets.domain.person.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 

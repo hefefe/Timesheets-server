@@ -1,12 +1,10 @@
 package com.mw.timesheets.commons.util;
 
 import java.time.*;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class DateUtils {
 
@@ -30,7 +28,7 @@ public class DateUtils {
         return getRangeOfDays(from, to, true, false, false).size();
     }
 
-    public static LocalDateTime getSystemTime(){
+    public static LocalDateTime getSystemTime() {
         return LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
     }
 }

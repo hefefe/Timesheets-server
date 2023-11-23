@@ -9,7 +9,6 @@ import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
 import com.mw.timesheets.domain.timetrack.model.TimeTrackerHistoryDTO;
 import com.mw.timesheets.domain.timetrack.model.TrackedDataDTO;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

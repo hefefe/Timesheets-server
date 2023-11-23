@@ -55,12 +55,12 @@ public class TaskController {
     }
 
     @GetMapping("user")
-    public ResponseEntity<List<TaskDTO>> getTasksByProjectAndUser(@RequestParam Long projectId){
+    public ResponseEntity<List<TaskDTO>> getTasksByProjectAndUser(@RequestParam Long projectId) {
         return ResponseEntity.ok(taskService.getTasksByProjectAndUser(projectId));
     }
 
     @PutMapping
-    public ResponseEntity<TaskDTO> changeWorkflowForTask(@RequestParam Long taskId, @RequestParam Long workFlowId){
+    public ResponseEntity<TaskDTO> changeWorkflowForTask(@RequestParam Long taskId, @RequestParam Long workFlowId) {
         return ResponseEntity.ok(taskService.changeWorkFlow(taskId, workFlowId));
     }
 }

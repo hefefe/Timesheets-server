@@ -1,7 +1,6 @@
 package com.mw.timesheets.domain.project;
 
 import com.mw.timesheets.domain.person.PersonEntity;
-import com.mw.timesheets.domain.project.model.ProjectDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

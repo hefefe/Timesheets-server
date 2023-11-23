@@ -34,13 +34,10 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.LongFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
-
-import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
 
 @RequiredArgsConstructor
 @Service
@@ -98,14 +95,14 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         var workingHoursMap = getWorkingHoursMap(person, from, to, predicate);
 
-        return BigDecimal.valueOf(workingHoursMap.get(WORK_HOURS)  * person.getHourlyPay()
+        return BigDecimal.valueOf(workingHoursMap.get(WORK_HOURS) * person.getHourlyPay()
                 + workingHoursMap.get(OVERTIME_HOURS) * person.getHourlyPay() * statisticsProperties.getOvertimePayRatio()
                 + workingHoursMap.get(HOLIDAY_HOURS) * person.getHourlyPay() * statisticsProperties.getHolidayPayRatio()
                 + workingHoursMap.get(WEEKEND_HOURS) * person.getHourlyPay() * statisticsProperties.getOvertimePayRatio());
 
     }
 
-    private Map<String, Double> getWorkingHoursMap(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate){
+    private Map<String, Double> getWorkingHoursMap(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
         Map<String, Double> workingMap = new HashMap<>();
         var history = timeTrackService.getHistoryOfGivenUser(person.getId(), from, to, predicate);
         var holidaysDaysRange = DateUtils.getRangeOfDays(from, to, false, false, true);
@@ -144,7 +141,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private Double overTimeRatioForPerson(PersonEntity person, LocalDate from, LocalDate to) {
         var workingHoursMap = getWorkingHoursMap(person, from, to, historyEntity -> true);
         var expectedWorkingHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, LocalDate.now()));
-        return  (workingHoursMap.get(OVERTIME_HOURS) + workingHoursMap.get(HOLIDAY_HOURS) + workingHoursMap.get(WEEKEND_HOURS)) / expectedWorkingHours * 100;
+        return (workingHoursMap.get(OVERTIME_HOURS) + workingHoursMap.get(HOLIDAY_HOURS) + workingHoursMap.get(WEEKEND_HOURS)) / expectedWorkingHours * 100;
     }
 
     private Double getCompletionRate(PersonEntity person, LocalDate from, LocalDate to) {
@@ -262,7 +259,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private List<Integer> getListOfSprintNumbers(ProjectEntity project, LocalDate from, LocalDate to) {
         var weeks = ChronoUnit.WEEKS.between(from, to);
         var numberOfSprints = (int) Math.ceil((double) weeks / project.getSprintDuration().getDuration());
-        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber()+1)
+        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber() + 1)
                 .boxed()
                 .filter(number -> number > 0)
                 .collect(Collectors.toList());
@@ -302,13 +299,12 @@ public class StatisticsServiceImpl implements StatisticsService {
                 false,
                 false,
                 true);
-        //TODO: coś odejmowanie jest be
-        var subtractDays = project.getEndOfSprint().getDayOfWeek() == DayOfWeek.SATURDAY || project.getEndOfSprint().getDayOfWeek()  == DayOfWeek.SUNDAY ? 0 : -1;
+        var subtractDays = project.getEndOfSprint().getDayOfWeek() == DayOfWeek.SATURDAY || project.getEndOfSprint().getDayOfWeek() == DayOfWeek.SUNDAY ? 0 : -1;
         Double subtrahend = committedTasks / (DateUtils.getNormalWorkingDaysCount(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()), project.getEndOfSprint().toLocalDate()) + subtractDays);
 
         for (BurnDownDTO burndown : burnDownDTOS) {
 
-            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate()) || burndown.getDate().equals( project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()))) {
+            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate()) || burndown.getDate().equals(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()))) {
                 burndown.setUncommitted(committedTasks);
             } else {
                 committedTasks -= subtrahend;
@@ -340,7 +336,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         return tasksDone;
     }
 
-    //TODO: get bardzo nieprzyjaźnie zrobiony
     private List<SprintCompletionDTO> getSprintCompletion(ProjectEntity project) {
         List<SprintCompletionDTO> sprintCompletion = Lists.newArrayList();
         project.getStatistics().stream()
