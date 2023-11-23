@@ -29,6 +29,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -241,6 +242,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private Integer getTasksDone(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getTasks().stream()
+                .filter(task -> task.getDoneDate() != null)
                 .filter(task -> task.getDoneDate().isAfter(from.minusDays(1)) && task.getDoneDate().isBefore(to.plusDays(1)))
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum);
@@ -276,6 +278,12 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private List<BurnDownDTO> getBurnDownChartData(ProjectEntity project) {
+        var committedTasks = project.getTasks().stream()
+                .filter(task -> !task.isDeleted())
+                .mapToDouble(TaskEntity::getStoryPoints)
+                .reduce(0, Double::sum);
+        var doneTasks = committedTasks;
+
         List<BurnDownDTO> burnDownDTOS = DateUtils.getRangeOfDays(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()),
                         project.getEndOfSprint().toLocalDate(),
                         true,
@@ -283,9 +291,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                         true).stream()
                 .map(date -> BurnDownDTO.builder().date(date).build())
                 .collect(Collectors.toList());
-        var committedTasks = project.getTasks().stream()
-                .mapToDouble(TaskEntity::getStoryPoints)
-                .reduce(0, Double::sum);
 
         var weekends = DateUtils.getRangeOfDays(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()),
                 project.getEndOfSprint().toLocalDate(),
@@ -297,30 +302,27 @@ public class StatisticsServiceImpl implements StatisticsService {
                 false,
                 false,
                 true);
+        //TODO: coś odejmowanie jest be
+        var subtractDays = project.getEndOfSprint().getDayOfWeek() == DayOfWeek.SATURDAY || project.getEndOfSprint().getDayOfWeek()  == DayOfWeek.SUNDAY ? 0 : -1;
+        Double subtrahend = committedTasks / (DateUtils.getNormalWorkingDaysCount(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()), project.getEndOfSprint().toLocalDate()) + subtractDays);
 
-        Double subtrahend = committedTasks / DateUtils.getNormalWorkingDaysCount(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()), project.getEndOfSprint().toLocalDate());
-        Double previousCommitted = 0.0;
         for (BurnDownDTO burndown : burnDownDTOS) {
-            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate())) {
+
+            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate()) || burndown.getDate().equals( project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()))) {
                 burndown.setUncommitted(committedTasks);
             } else {
-                burndown.setUncommitted(committedTasks);
                 committedTasks -= subtrahend;
+                burndown.setUncommitted(committedTasks);
             }
-            //TODO: po coś jest getDoneDate w taskach + to nie jest burnUp chart
-            burndown.setCommitted(project.getStatistics().stream()
-                    .filter(statistics -> statistics.getSprintNumber().equals(project.getSprintNumber()) && statistics.getDay().isEqual(burndown.getDate()))
-                    .mapToDouble(ProjectStatisticsEntity::getStoryPointsDone)
-                    .findFirst()
-                    .orElse(previousCommitted));
 
-            if (burndown.getDate().equals(getSystemTime().toLocalDate())) {
-                burndown.setCommitted(project.getTasks().stream()
-                        .filter(task -> !task.isDeleted() && task.getDoneDate().equals(getSystemTime().toLocalDate()))
-                        .mapToDouble(TaskEntity::getStoryPoints)
-                        .sum());
-            }
-            previousCommitted = burndown.getCommitted();
+            var doneAtDay = project.getTasks().stream()
+                    .filter(Objects::nonNull)
+                    .filter(task -> task.getDoneDate() != null)
+                    .filter(task -> !task.isDeleted() && task.getDoneDate().equals(burndown.getDate()))
+                    .mapToDouble(TaskEntity::getStoryPoints)
+                    .sum();
+            doneTasks -= doneAtDay;
+            burndown.setCommitted(doneTasks);
         }
         return burnDownDTOS;
     }
