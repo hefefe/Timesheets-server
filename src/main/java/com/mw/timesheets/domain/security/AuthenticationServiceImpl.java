@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.security;
 
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
+import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
@@ -26,6 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final SecurityUtils securityUtils;
     private final PersonRepository personRepository;
 
     @Override
@@ -35,7 +37,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (loginDTO.getPassword() == null) throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
 
         if (loginDTO.getPassword().equals(user.getTempPassword())) {
-            return AuthenticationDTO.builder().requiredToChangePassword(true).build();
+            return jwtService.buildAuthenticationToken(user, true);
         }
 
         if (passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()) && loginDTO.getPassword() != null) {
@@ -64,15 +66,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationDTO setUserPassword(ChangePasswordDTO changePassword) {
-        if (changePassword.getConfirmPassword() == null || changePassword.getPassword() == null || changePassword.getTempPassword() == null)
+        if (changePassword.getConfirmPassword() == null || changePassword.getPassword() == null)
             throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
         if (!changePassword.getConfirmPassword().equals(changePassword.getPassword()))
             throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);
 
-        PersonEntity person = personRepository.findByUser_Email(changePassword.getEmail()).orElseThrow(() -> new CustomErrorException("wrong email", HttpStatus.BAD_REQUEST));
-        if (!Objects.equals(person.getUser().getTempPassword(), changePassword.getTempPassword()))
-            throw new CustomErrorException("wrong password", HttpStatus.BAD_REQUEST);
-
+        PersonEntity person = securityUtils.getPersonByEmail();
         person.getUser().setTempPassword(null);
         person.getUser().setPassword(passwordEncoder.encode(changePassword.getPassword()));
         var savedPerson = personRepository.save(person);

@@ -16,7 +16,4 @@ public class ChangePasswordDTO extends LoginDTO {
 
     @NotNull
     private String confirmPassword;
-
-    @NotNull
-    private String tempPassword;
 }
