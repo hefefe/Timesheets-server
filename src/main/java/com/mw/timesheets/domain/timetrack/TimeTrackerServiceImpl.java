@@ -54,6 +54,11 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     }
 
     @Override
+    public boolean isStarted() {
+        return timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId());
+    }
+
+    @Override
     public void stopTrackingTime(Long id) {
         if (!timeTrackRepository.existsByPersonId(id)) {
             throw new CustomErrorException("no tracker to stop", HttpStatus.BAD_REQUEST);

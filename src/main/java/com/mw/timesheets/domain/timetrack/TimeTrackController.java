@@ -36,4 +36,9 @@ public class TimeTrackController {
     public ResponseEntity<HistoryWithTotalTimeDTO> getHistoryOfUser() {
         return ResponseEntity.ok(timeTrackService.getHistoryOfUser());
     }
+
+    @GetMapping("is/started")
+    public ResponseEntity<Boolean> getIsStarted() {
+        return ResponseEntity.ok(timeTrackService.isStarted());
+    }
 }

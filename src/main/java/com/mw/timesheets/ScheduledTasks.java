@@ -100,6 +100,7 @@ public class ScheduledTasks {
                 .forEach(personStatisticsRepository::saveAll);
     }
 
+    //TODO: 1. dać foreign key dla historii, 2. z historii wyciągać completion rate
     private Double calculateCompletionRate(PersonEntity person, ProjectEntity project) {
         var tasks = person.getTasks();
         var committed = tasks.stream()

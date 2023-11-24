@@ -12,6 +12,8 @@ public interface TimeTrackService {
 
     void stopTrackingTime();
 
+    boolean isStarted();
+
     void stopTrackingTime(Long id);
 
     HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long PersonId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate);
