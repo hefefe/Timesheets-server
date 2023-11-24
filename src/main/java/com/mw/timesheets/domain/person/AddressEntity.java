@@ -28,7 +28,5 @@ public class AddressEntity extends CommonEntity {
 
     private String zipCode;
 
-    @ManyToOne
-    @JoinColumn(name = "country_id", referencedColumnName = "id")
-    private CountryEntity country;
+    private String country;
 }

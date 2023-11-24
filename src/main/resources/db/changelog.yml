@@ -3,16 +3,7 @@ databaseChangeLog:
       file: changes/202310202120_create_table_user.xml
       relativeToChangelogFile: true
   - include:
-      file: changes/202310211628_create_table_country.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310211634_insert_countries.xml
-      relativeToChangelogFile: true
-  - include:
       file: changes/202310202150_create_table_address.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310211800_create_table_contact.xml
       relativeToChangelogFile: true
   - include:
       file: changes/202310212130_create_table_person.xml

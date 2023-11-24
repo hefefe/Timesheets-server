@@ -21,5 +21,5 @@ public class AddressDTO {
 
     private String zipCode;
 
-    private CountryDTO country;
+    private String country;
 }

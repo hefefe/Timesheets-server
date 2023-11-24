@@ -35,7 +35,7 @@ public class PersonDTO extends BasicPersonDataDTO {
 
     private AddressDTO address;
 
-    private ContactDTO contact;
+    private String phone;
 
     private UserDTO user;
 

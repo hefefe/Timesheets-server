@@ -45,6 +45,8 @@ public class PersonEntity extends CommonEntity {
 
     private Double hourlyPay;
 
+    private String phone;
+
     @Column(columnDefinition = "BLOB")
     private byte[] photo;
 
@@ -61,10 +63,6 @@ public class PersonEntity extends CommonEntity {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private AddressEntity address;
-
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact_id", referencedColumnName = "id")
-    private ContactEntity contact;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

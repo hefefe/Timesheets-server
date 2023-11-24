@@ -21,10 +21,7 @@
                 <constraints references="ADDRESS(id)"
                              foreignKeyName="FK_PERSON_ADDRESS"/>
             </column>
-            <column name="contact_id" type="bigint">
-                <constraints references="CONTACT(id)"
-                             foreignKeyName="FK_PERSON_CONTACT"/>
-            </column>
+            <column name="phone" type="varchar(50)"/>
             <column name="user_id" type="bigint">
                 <constraints references="USER(id)"
                              foreignKeyName="FK_PERSON_USER"/>
@@ -38,18 +35,17 @@
 
         <insert tableName="PERSON">
             <column name="first_name" value="Adam"/>
-            <column name="middle_name" value="Michał"/>
+            <column name="middle_name" value="Michal"/>
             <column name="last_name" value="Nowak"/>
             <column name="experience" value="SENIOR"/>
             <column name="position" value="MANAGER"/>
             <column name="sex" value="male"/>
             <column name="date_of_birth" value="1990-11-19"/>
             <column name="address_id" value="1"/>
-            <column name="contact_id" value="1"/>
             <column name="user_id" value="1"/>
             <column name="date_of_employment" value="1990-11-19"/>
             <column name="work_during_week_in_hours" value="40"/>
-            <column name="hourly_pay" value="0"/>
+            <column name="hourly_pay" value="10"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

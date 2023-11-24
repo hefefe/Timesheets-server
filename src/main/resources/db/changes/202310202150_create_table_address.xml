@@ -13,10 +13,7 @@
             <column name="city" type="varchar(50)"/>
             <column name="home_number" type="varchar(50)"/>
             <column name="zip_code" type="varchar(50)"/>
-            <column name="country_id" type="bigint">
-                <constraints references="COUNTRY(id)"
-                             foreignKeyName="FK_ADDRESS_COUNTRY"/>
-            </column>
+            <column name="country" type="varchar(50)"/>
         </createTable>
 
         <insert tableName="ADDRESS">
@@ -24,7 +21,7 @@
             <column name="city" value="Koszalin"/>
             <column name="home_number" value="21/37"/>
             <column name="zip_code" value="75-426"/>
-            <column name="country_id" value="1"/>
+            <column name="country" value="POLAND"/>
         </insert>
     </changeSet>
 </databaseChangeLog>
