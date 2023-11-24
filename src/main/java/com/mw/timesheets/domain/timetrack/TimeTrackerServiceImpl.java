@@ -54,8 +54,8 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     }
 
     @Override
-    public boolean isStarted() {
-        return timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId());
+    public LocalTime isStarted() {
+        return timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail()).getStarted();
     }
 
     @Override

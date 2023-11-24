@@ -4,6 +4,7 @@ import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.function.Predicate;
 
 public interface TimeTrackService {
@@ -12,7 +13,7 @@ public interface TimeTrackService {
 
     void stopTrackingTime();
 
-    boolean isStarted();
+    LocalTime isStarted();
 
     void stopTrackingTime(Long id);
 

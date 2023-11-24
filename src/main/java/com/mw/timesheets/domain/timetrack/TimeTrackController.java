@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalTime;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/timetrack")
@@ -37,8 +39,8 @@ public class TimeTrackController {
         return ResponseEntity.ok(timeTrackService.getHistoryOfUser());
     }
 
-    @GetMapping("is/started")
-    public ResponseEntity<Boolean> getIsStarted() {
+    @GetMapping("started/time")
+    public ResponseEntity<LocalTime> getIsStarted() {
         return ResponseEntity.ok(timeTrackService.isStarted());
     }
 }
