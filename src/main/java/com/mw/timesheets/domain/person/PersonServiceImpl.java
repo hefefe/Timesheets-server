@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.person;
 
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
+import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
@@ -24,6 +25,7 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
     private final UserRepository userRepository;
     private final PersonMapper personMapper;
+    private final SecurityUtils securityUtils;
 
     @Override
     public List<PersonDTO> getAllUsers() {
@@ -102,6 +104,11 @@ public class PersonServiceImpl implements PersonService {
         person.setPhoto(photo.getBytes());
         personRepository.save(person);
         return personMapper.toDtos(personRepository.findByDeletedFalse());
+    }
+
+    @Override
+    public PersonDTO getLoggedInUSer() {
+        return personMapper.toDto(securityUtils.getPersonByEmail());
     }
 
 

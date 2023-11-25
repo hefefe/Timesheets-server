@@ -24,4 +24,6 @@ public interface PersonService {
     List<String> getGenders();
 
     List<PersonDTO> savePersonPhoto(Long personId, MultipartFile photo);
+
+    PersonDTO getLoggedInUSer();
 }

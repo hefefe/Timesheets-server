@@ -21,6 +21,11 @@ public class PersonController {
     private final PersonDataProvider personDataProvider;
 
     @GetMapping
+    public ResponseEntity<PersonDTO> getLoggedInUser() {
+        return ResponseEntity.ok(personService.getLoggedInUSer());
+    }
+
+    @GetMapping("/all")
     public ResponseEntity<List<PersonDTO>> getAllUsers() {
         return ResponseEntity.ok(personService.getAllUsers());
     }
