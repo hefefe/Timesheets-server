@@ -61,8 +61,8 @@ public class PersonController {
         return ResponseEntity.ok(personDataProvider.getPersonByCriteria(searchPersonDTO));
     }
 
-    @PostMapping("photo/{personId}")
-    public ResponseEntity<List<PersonDTO>> savePersonPhoto(@PathVariable Long personId, @RequestParam MultipartFile photo) {
+    @PostMapping("photo")
+    public ResponseEntity<List<PersonDTO>> savePersonPhoto(@RequestParam Long personId, @RequestParam MultipartFile photo) {
         return ResponseEntity.ok(personService.savePersonPhoto(personId, photo));
     }
 }
