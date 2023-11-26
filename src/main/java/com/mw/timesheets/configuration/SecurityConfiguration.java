@@ -1,5 +1,6 @@
 package com.mw.timesheets.configuration;
 
+import com.google.common.collect.ImmutableList;
 import com.mw.timesheets.commons.jwt.JwtFilter;
 import com.mw.timesheets.domain.security.JwtService;
 import com.mw.timesheets.domain.security.TokenBlacklistService;
@@ -47,7 +48,9 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type","Access-Control-Request-Headers","Access-Control-Request-Method",
+                "Accept","Access-Control-Allow-Headers"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

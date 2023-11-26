@@ -47,6 +47,7 @@ public class PersonEntity extends CommonEntity {
 
     private String phone;
 
+    @Lob
     @Column(columnDefinition = "BLOB")
     private byte[] photo;
 
