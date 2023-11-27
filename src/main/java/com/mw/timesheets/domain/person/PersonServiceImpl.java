@@ -34,33 +34,34 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<PersonDTO> saveUsers(List<PersonDTO> persons) {
-        if (persons == null) {
-            throw new CustomErrorException("no persons to save", HttpStatus.BAD_REQUEST);
+    public PersonDTO saveUser(PersonDTO singularPerson) {
+    if (singularPerson.getId() != null){
+        var personFromDatabase = personRepository.findById(singularPerson.getId());
+        if(personFromDatabase.isPresent()){
+            var unwrappedPerson = personFromDatabase.get();
+            personMapper.updateEntity(singularPerson, unwrappedPerson);
+            unwrappedPerson.getUser().setEmail(singularPerson.getUser().getEmail());
+            unwrappedPerson.getUser().setRole(singularPerson.getPosition().getRole());
+            PersonEntity savedPerson = personRepository.save(unwrappedPerson);
+
+            var user = savedPerson.getUser();
+            user.setPerson(savedPerson);
+            userRepository.save(user);
+
+            return personMapper.toDto(savedPerson);
         }
-        var filterPerson = persons.stream()
-                .filter(personDTO -> !personRepository.existsByUserEmail(personDTO.getUser().getEmail()))
-                .collect(Collectors.toList());
-
-        var personEntities = personMapper.toEntities(filterPerson).stream()
-                .peek(this::setTempPassword)
-                .peek(person -> person.getUser().setRole(person.getPosition().getRole()))
-                .collect(Collectors.toList());
-        List<PersonEntity> personList = personRepository.saveAll(personEntities);
-
-        var users = personList.stream()
-                .peek(person -> person.getUser().setPerson(person))
-                .map(PersonEntity::getUser)
-                .collect(Collectors.toSet());
-        userRepository.saveAll(users);
-
-        return personMapper.toDtos(personList);
     }
 
-    private PersonEntity setTempPassword(PersonEntity person) {
-        if (person.getUser().getPassword() != null) return person;
-        person.getUser().setTempPassword(PasswordUtil.generateTempPassword());
-        return person;
+        var personEntity = personMapper.toEntity(singularPerson);
+        personEntity.getUser().setTempPassword(PasswordUtil.generateTempPassword());
+        personEntity.getUser().setRole(personEntity.getPosition().getRole());
+        PersonEntity savedPerson = personRepository.save(personEntity);
+
+        var user = savedPerson.getUser();
+        user.setPerson(savedPerson);
+        userRepository.save(user);
+
+        return personMapper.toDto(savedPerson);
     }
 
     @Override
@@ -93,17 +94,12 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public List<String> getGenders() {
-        return personRepository.findDistinctSex();
-    }
-
-    @Override
     @SneakyThrows
-    public List<PersonDTO> savePersonPhoto(Long personId, MultipartFile photo) {
+    public PersonDTO savePersonPhoto(Long personId, MultipartFile photo) {
         var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
         person.setPhoto(photo.getBytes());
         personRepository.save(person);
-        return personMapper.toDtos(personRepository.findByDeletedFalse());
+        return personMapper.toDto(person);
     }
 
     @Override

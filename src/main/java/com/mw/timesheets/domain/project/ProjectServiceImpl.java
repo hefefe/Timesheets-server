@@ -1,9 +1,10 @@
 package com.mw.timesheets.domain.project;
 
+import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
+import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
-import com.mw.timesheets.domain.team.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,10 +21,10 @@ import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
 public class ProjectServiceImpl implements ProjectService {
 
     private final SecurityUtils securityUtils;
-    private final TeamService teamService;
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
     private final WorkflowRepository workflowRepository;
+    private final PersonRepository personRepository;
 
     @Override
     public ProjectDTO saveProject(ProjectDTO projectDTO) {
@@ -35,9 +36,9 @@ public class ProjectServiceImpl implements ProjectService {
                 .person(securityUtils.getPersonByEmail())
                 .sprintDuration(projectDTO.getSprintDuration())
                 .endOfSprint(projectDTO.getEndOfSprint())
-                .team(teamService.getTeamsByIds(projectDTO.getTeams()))
+                .personsInProject(Sets.newHashSet(personRepository.findAllById(projectDTO.getPersons())))
                 .sprintNumber(0)
-                .taskNumber(1)
+                .taskNumber(0)
                 .build();
         var savedProject = projectRepository.save(project);
         List<WorkflowEntity> workflowElements = projectDTO.getWorkflow().stream()

@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.task;
 
 import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
+import com.mw.timesheets.domain.task.model.CommentDTO;
 import com.mw.timesheets.domain.task.model.TaskDTO;
 import com.mw.timesheets.domain.task.model.TaskTypeDTO;
 import com.mw.timesheets.domain.task.model.WorkflowDTO;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -62,5 +64,20 @@ public class TaskController {
     @PutMapping
     public ResponseEntity<TaskDTO> changeWorkflowForTask(@RequestParam Long taskId, @RequestParam Long workFlowId) {
         return ResponseEntity.ok(taskService.changeWorkFlow(taskId, workFlowId));
+    }
+
+    @PostMapping("comment")
+    public ResponseEntity<CommentDTO> saveComment(@RequestBody CommentDTO commentDTO,@RequestParam Long taskId) {
+        return ResponseEntity.ok(taskService.saveComment(commentDTO, taskId));
+    }
+
+    @PostMapping("comment/resources/{CommentId}")
+    public ResponseEntity<CommentDTO> saveCommentResources(@RequestParam List<MultipartFile> multipartFiles, @PathVariable Long CommentId) {
+        return ResponseEntity.ok(taskService.saveCommentResources(multipartFiles, CommentId));
+    }
+
+    @GetMapping("comments/{taskId}")
+    public ResponseEntity<List<CommentDTO>> getCommentsForTask(@PathVariable Long taskId) {
+        return ResponseEntity.ok(taskService.getCommentsForTask(taskId));
     }
 }

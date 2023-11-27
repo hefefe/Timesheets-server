@@ -9,7 +9,6 @@ import com.mw.timesheets.domain.statistcs.PersonStatisticsRepository;
 import com.mw.timesheets.domain.statistcs.ProjectStatisticsEntity;
 import com.mw.timesheets.domain.statistcs.ProjectStatisticsRepository;
 import com.mw.timesheets.domain.task.TaskEntity;
-import com.mw.timesheets.domain.team.TeamEntity;
 import com.mw.timesheets.domain.timetrack.TimeTrackEntity;
 import com.mw.timesheets.domain.timetrack.TimeTrackRepository;
 import com.mw.timesheets.domain.timetrack.TimeTrackService;
@@ -20,7 +19,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -85,10 +83,7 @@ public class ScheduledTasks {
 
     private void savePersonStatistics(List<ProjectEntity> projects) {
         projects.stream()
-                .map(project -> project.getTeam()
-                        .stream()
-                        .map(TeamEntity::getPersons)
-                        .flatMap(Collection::stream)
+                .map(project -> project.getPersonsInProject().stream()
                         .map(person -> PersonStatisticsEntity.builder()
                                 .person(person)
                                 .project(project)
@@ -123,7 +118,6 @@ public class ScheduledTasks {
                 .peek(project -> project.setEndOfSprint(calculateEndOfSprint(project)))
                 .peek(project -> project.setSprintNumber(project.getSprintNumber() + 1))
                 .peek(project -> project.setTasks(project.getTasks().stream().filter(task -> !Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName())).collect(Collectors.toList())))
-                .peek(project -> project.setSprintGoal(""))
                 .collect(Collectors.toList());
         projectRepository.saveAll(modifiedProject);
     }

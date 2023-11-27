@@ -15,5 +15,7 @@ public class TaskTypeDTO {
 
     private String name;
 
-    private byte[] photo;
+    private String icon;
+
+    private String color;
 }

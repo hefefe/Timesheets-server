@@ -15,7 +15,6 @@ public enum Position {
     TEAM_LEADER("team leader", Roles.ROLE_LEADER),
     MANAGER("manager", Roles.ROLE_ADMIN);
 
-    @JsonValue
     private final String roleName;
     private final Roles role;
 }

@@ -20,23 +20,11 @@ public class SearchPersonDTO {
 
     private String lastName;
 
-    private List<String> sex;
-
     private String phoneNumber;
 
     private List<Experience> experience;
 
     private List<Position> position;
-
-    private String streetName;
-
-    private String city;
-
-    private String homeNumber;
-
-    private String zipCode;
-
-    private List<String> countries;
 
     private String email;
 }

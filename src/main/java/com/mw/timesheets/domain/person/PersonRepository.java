@@ -12,8 +12,5 @@ public interface PersonRepository extends JpaRepository<PersonEntity, Long> {
 
     Optional<PersonEntity> findByUser_Email(String email);
 
-    @Query("SELECT DISTINCT p.sex FROM PersonEntity p")
-    List<String> findDistinctSex();
-
     boolean existsByUserEmail(String email);
 }

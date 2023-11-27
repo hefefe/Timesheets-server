@@ -3,22 +3,13 @@ databaseChangeLog:
       file: changes/202310202120_create_table_user.xml
       relativeToChangelogFile: true
   - include:
-      file: changes/202310202150_create_table_address.xml
-      relativeToChangelogFile: true
-  - include:
       file: changes/202310212130_create_table_person.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310212211_create_table_team.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310212223_create_table_person_team.xml
       relativeToChangelogFile: true
   - include:
       file: changes/202310221112_create_table_project.xml
       relativeToChangelogFile: true
   - include:
-      file: changes/202310221131_create_table_team_project.xml
+      file: changes/202310212223_create_table_person_project.xml
       relativeToChangelogFile: true
   - include:
       file: changes/202310221134_create_table_workflow.xml
@@ -43,4 +34,10 @@ databaseChangeLog:
       relativeToChangelogFile: true
   - include:
       file: changes/202311121711_create_table_token_blacklist.xml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/202310221225_create_table_comments.xml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/202310221224_create_table_comment_resources.xml
       relativeToChangelogFile: true

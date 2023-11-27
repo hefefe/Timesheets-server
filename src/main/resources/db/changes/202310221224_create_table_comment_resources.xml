@@ -4,14 +4,17 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
-    <changeSet id="CREATE TABLE TEAM" author="witczakm">
-        <createTable tableName="TEAM">
+    <changeSet id="CREATE TABLE COMMENT RESOURCES" author="witczakm">
+        <createTable tableName="COMMENT_RESOURCES">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="name" type="varchar(100)"/>
-            <column name="deleted" type="boolean"/>
-            <column name="deleted_time" type="datetime"/>
+            <column name="resource" type="LONGBLOB"/>
+            <column name="comment_id" type="bigint">
+                <constraints references="COMMENTS(id)"
+                             foreignKeyName="FK_COMMENT_RESOURCES_COMMENT"/>
+            </column>
+            <column name="extension" type="varchar(5)"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

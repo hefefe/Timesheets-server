@@ -36,5 +36,5 @@ public class ProjectDTO {
 
     private List<String> workflow;
 
-    private List<Long> teams;
+    private List<Long> persons;
 }

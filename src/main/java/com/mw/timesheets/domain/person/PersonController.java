@@ -31,8 +31,8 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<List<PersonDTO>> saveUsers(@RequestBody List<PersonDTO> persons) {
-        return new ResponseEntity<>(personService.saveUsers(persons), HttpStatus.CREATED);
+    public ResponseEntity<PersonDTO> saveUsers(@RequestBody PersonDTO person) {
+        return new ResponseEntity<>(personService.saveUser(person), HttpStatus.CREATED);
     }
 
     @DeleteMapping
@@ -41,28 +41,13 @@ public class PersonController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("experience")
-    public ResponseEntity<List<Experience>> getExperience() {
-        return ResponseEntity.ok(personService.getExperience());
-    }
-
-    @GetMapping("position")
-    public ResponseEntity<List<Position>> getJobPosition() {
-        return ResponseEntity.ok(personService.getJobPosition());
-    }
-
-    @GetMapping("genders")
-    public ResponseEntity<List<String>> getGenders() {
-        return ResponseEntity.ok(personService.getGenders());
-    }
-
     @PostMapping("search")
     public ResponseEntity<List<PersonDTO>> searchPerson(@RequestBody SearchPersonDTO searchPersonDTO) {
         return ResponseEntity.ok(personDataProvider.getPersonByCriteria(searchPersonDTO));
     }
 
     @PostMapping("photo")
-    public ResponseEntity<List<PersonDTO>> savePersonPhoto(@RequestParam Long personId, @RequestParam MultipartFile photo) {
+    public ResponseEntity<PersonDTO> savePersonPhoto(@RequestParam Long personId, @RequestParam MultipartFile photo) {
         return ResponseEntity.ok(personService.savePersonPhoto(personId, photo));
     }
 }

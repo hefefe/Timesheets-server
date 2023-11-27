@@ -18,7 +18,6 @@ import com.mw.timesheets.domain.statistcs.model.project.ProjectStatisticsDTO;
 import com.mw.timesheets.domain.statistcs.model.project.SprintCompletionDTO;
 import com.mw.timesheets.domain.statistcs.model.project.TasksDoneDTO;
 import com.mw.timesheets.domain.task.TaskEntity;
-import com.mw.timesheets.domain.team.TeamEntity;
 import com.mw.timesheets.domain.timetrack.HistoryEntity;
 import com.mw.timesheets.domain.timetrack.HistoryRepository;
 import com.mw.timesheets.domain.timetrack.TimeTrackService;
@@ -231,10 +230,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private Integer getNumberOfEmployees(ProjectEntity project) {
-        return Math.toIntExact(project.getTeam().stream()
-                .map(TeamEntity::getPersons)
-                .mapToLong(Collection::size)
-                .sum());
+        return project.getPersonsInProject().size();
+
     }
 
     private Integer getTasksDone(ProjectEntity project, LocalDate from, LocalDate to) {
@@ -266,11 +263,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private BigDecimal moneySpentOnProject(ProjectEntity project, LocalDate from, LocalDate to) {
-        return project.getTeam().stream()
-                .map(TeamEntity::getPersons)
-                .map(persons -> persons.stream()
-                        .map(person -> calculatePayForUser(person, from, to, historyEntity -> historyEntity.getProjectKey().equals(project.getKey())))
-                        .reduce(BigDecimal.ZERO, BigDecimal::add))
+        return project.getPersonsInProject().stream()
+                .map(person -> calculatePayForUser(person, from, to, historyEntity -> historyEntity.getProjectKey().equals(project.getKey())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

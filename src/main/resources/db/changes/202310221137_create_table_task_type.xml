@@ -10,7 +10,34 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(100)"/>
-            <column name="photo" type="blob"/>
+            <column name="icon" type="varchar(100)"/>
+            <column name="color" type="varchar(10)"/>
         </createTable>
+
+        <insert tableName="TASK_TYPE">
+            <column name="name" value="Improvement"/>
+            <column name="icon" value="pi-angle-double-up"/>
+            <column name="color" value="#59de78"/>
+        </insert>
+        <insert tableName="TASK_TYPE">
+            <column name="name" value="New Feature"/>
+            <column name="icon" value="pi-bookmark"/>
+            <column name="color" value="#ce93d8"/>
+        </insert>
+        <insert tableName="TASK_TYPE">
+            <column name="name" value="Bug"/>
+            <column name="icon" value="pi-exclamation-triangle"/>
+            <column name="color" value="#d65a5a"/>
+        </insert>
+        <insert tableName="TASK_TYPE">
+            <column name="name" value="Change"/>
+            <column name="icon" value="pi-undo"/>
+            <column name="color" value="#dce063"/>
+        </insert>
+        <insert tableName="TASK_TYPE">
+            <column name="name" value="Research"/>
+            <column name="icon" value="pi-search"/>
+            <column name="color" value="#5395cf"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

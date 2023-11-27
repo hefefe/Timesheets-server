@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
+import com.mw.timesheets.commons.util.DateUtils;
 import com.mw.timesheets.domain.person.PersonMapper;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
@@ -11,15 +12,20 @@ import com.mw.timesheets.domain.person.type.Roles;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
 import com.mw.timesheets.domain.project.WorkflowRepository;
+import com.mw.timesheets.domain.task.model.CommentDTO;
 import com.mw.timesheets.domain.task.model.TaskDTO;
 import com.mw.timesheets.domain.task.model.TaskTypeDTO;
 import com.mw.timesheets.domain.task.model.WorkflowDTO;
-import com.mw.timesheets.domain.team.TeamEntity;
+import jakarta.activation.MimeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,6 +46,8 @@ public class TaskServiceImpl implements TaskService {
     private final PersonMapper personMapper;
     private final TaskTypeMapper taskTypeMapper;
     private final SecurityUtils securityUtils;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public TaskDTO saveTask(TaskDTO taskDTO, Long projectId) {
@@ -93,9 +101,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public List<BasicPersonDataDTO> getPeopleWorkingOnProject(Long projectId) {
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
-        return project.getTeam().stream()
-                .map(TeamEntity::getPersons)
-                .flatMap(Collection::stream)
+        return project.getPersonsInProject().stream()
                 .map(personMapper::toBasicData)
                 .collect(Collectors.toList());
     }
@@ -134,6 +140,35 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toDto(task);
     }
 
+    @Override
+    public CommentDTO saveComment(CommentDTO commentDTO, Long taskId) {
+        var commentToSave = CommentEntity.builder()
+                .task(taskRepository.findById(taskId).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)))
+                .commentContent(commentDTO.getCommentContent())
+                .person(securityUtils.getPersonByEmail())
+                .postTime(DateUtils.getSystemTime())
+                .build();
+        commentRepository.save(commentToSave);
+        return null;
+    }
+
+    @Override
+    public CommentDTO saveCommentResources(List<MultipartFile> multipartFiles, Long commentId) {
+        var comment = commentRepository.findById(commentId).orElseThrow(() -> new CustomErrorException("comment does not exist", HttpStatus.BAD_REQUEST));
+        var resources = multipartFiles.stream()
+                .map(file -> mapMultipartFileToEntity(file, comment))
+                .collect(Collectors.toList());
+        comment.setCommentResources(resources);
+        var savedComment = commentRepository.save(comment);
+        return commentMapper.toDto(savedComment);
+    }
+
+    @Override
+    public List<CommentDTO> getCommentsForTask(Long taskId) {
+        var comments = taskRepository.findById(taskId).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)).getComments();
+        return commentMapper.toDtos(comments);
+    }
+
     private String generateKeyForTask(ProjectEntity project, String taskKey) {
         if (taskKey != null) {
             return taskKey;
@@ -142,4 +177,19 @@ public class TaskServiceImpl implements TaskService {
         projectRepository.save(project);
         return String.format("%s-%d", project.getKey(), project.getTaskNumber());
     }
+
+    private String getExtensionFromFileName(String fileName){
+        String[] arr = fileName.split("\\.");
+        return arr[arr.length-1];
+    }
+
+    @SneakyThrows
+    private CommentResourceEntity mapMultipartFileToEntity(MultipartFile multipartFile, CommentEntity comment){
+        return CommentResourceEntity.builder()
+                .resource(multipartFile.getBytes())
+                .extension(getExtensionFromFileName(multipartFile.getName()))
+                .comment(comment)
+                .build();
+    }
+
 }

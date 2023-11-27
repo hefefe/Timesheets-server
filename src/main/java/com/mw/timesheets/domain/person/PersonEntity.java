@@ -3,9 +3,9 @@ package com.mw.timesheets.domain.person;
 import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
+import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.statistcs.PersonStatisticsEntity;
 import com.mw.timesheets.domain.task.TaskEntity;
-import com.mw.timesheets.domain.team.TeamEntity;
 import com.mw.timesheets.domain.timetrack.HistoryEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -35,10 +35,6 @@ public class PersonEntity extends CommonEntity {
 
     private String lastName;
 
-    private String sex;
-
-    private LocalDate dateOfBirth;
-
     private LocalDate dateOfEmployment;
 
     private Integer workDuringWeekInHours;
@@ -48,7 +44,7 @@ public class PersonEntity extends CommonEntity {
     private String phone;
 
     @Lob
-    @Column(columnDefinition = "BLOB")
+    @Column(columnDefinition = "MEDIUMBLOB")
     private byte[] photo;
 
     @Enumerated(EnumType.STRING)
@@ -60,17 +56,12 @@ public class PersonEntity extends CommonEntity {
     private boolean deleted = Boolean.FALSE;
 
     private LocalDateTime deletedTime;
-
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private AddressEntity address;
-
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private UserEntity user;
 
-    @ManyToMany(mappedBy = "persons")
-    private Set<TeamEntity> teams = new HashSet<>();
+    @ManyToMany(mappedBy = "personsInProject")
+    private Set<ProjectEntity> projects = new HashSet<>();
 
     @OneToMany(mappedBy = "person")
     private List<TaskEntity> tasks;

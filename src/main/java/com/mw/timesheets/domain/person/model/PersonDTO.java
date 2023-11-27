@@ -19,10 +19,6 @@ public class PersonDTO extends BasicPersonDataDTO {
 
     private String middleName;
 
-    private String sex;
-
-    private LocalDate dateOfBirth;
-
     private LocalDate dateOfEmployment;
 
     private Experience experience;
@@ -32,8 +28,6 @@ public class PersonDTO extends BasicPersonDataDTO {
     private Integer workDuringWeekInHours;
 
     private Double hourlyPay;
-
-    private AddressDTO address;
 
     private String phone;
 

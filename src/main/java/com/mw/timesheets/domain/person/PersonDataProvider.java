@@ -27,7 +27,6 @@ public class PersonDataProvider {
 
         Root<PersonEntity> person = cq.from(PersonEntity.class);
         cq.select(person);
-        Join<PersonEntity, AddressEntity> address = person.join("address");
         Join<PersonEntity, UserEntity> user = person.join("user");
         if (searchPersonDTO.getFirstName() != null)
             predicates.add(cb.like(person.get("firstName"), "%" + searchPersonDTO.getFirstName() + "%"));
@@ -35,24 +34,12 @@ public class PersonDataProvider {
             predicates.add(cb.like(person.get("middleName"), "%" + searchPersonDTO.getMiddleName() + "%"));
         if (searchPersonDTO.getLastName() != null)
             predicates.add(cb.like(person.get("lastName"), "%" + searchPersonDTO.getLastName() + "%"));
-        if (searchPersonDTO.getSex() != null && !searchPersonDTO.getSex().isEmpty())
-            predicates.add(person.get("sex").in(searchPersonDTO.getSex()));
         if (searchPersonDTO.getExperience() != null && !searchPersonDTO.getExperience().isEmpty())
             predicates.add(person.get("experience").in(searchPersonDTO.getExperience()));
-        if (searchPersonDTO.getCountries() != null && !searchPersonDTO.getCountries().isEmpty())
-            predicates.add(address.get("name").in(searchPersonDTO.getCountries()));
         if (searchPersonDTO.getPosition() != null && !searchPersonDTO.getPosition().isEmpty())
             predicates.add(person.get("position").in(searchPersonDTO.getPosition()));
         if (searchPersonDTO.getPhoneNumber() != null)
             predicates.add(cb.like(person.get("phone"), "%" + searchPersonDTO.getPhoneNumber() + "%"));
-        if (searchPersonDTO.getStreetName() != null)
-            predicates.add(cb.like(address.get("streetName"), "%" + searchPersonDTO.getStreetName() + "%"));
-        if (searchPersonDTO.getCity() != null)
-            predicates.add(cb.like(address.get("city"), "%" + searchPersonDTO.getCity() + "%"));
-        if (searchPersonDTO.getHomeNumber() != null)
-            predicates.add(cb.like(address.get("homeNumber"), "%" + searchPersonDTO.getHomeNumber() + "%"));
-        if (searchPersonDTO.getZipCode() != null)
-            predicates.add(cb.like(address.get("zipCode"), "%" + searchPersonDTO.getZipCode() + "%"));
         if (searchPersonDTO.getEmail() != null)
             predicates.add(cb.like(user.get("email"), "%" + searchPersonDTO.getEmail() + "%"));
         predicates.add(cb.isFalse(person.get("deleted")));

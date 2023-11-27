@@ -3,28 +3,27 @@ package com.mw.timesheets.domain.person;
 import com.mw.timesheets.commons.mapper.CommonMapper;
 import com.mw.timesheets.commons.mapper.MapperConfiguration;
 import com.mw.timesheets.domain.person.model.*;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import com.mw.timesheets.domain.person.type.Position;
+import com.mw.timesheets.domain.person.type.Roles;
+import org.mapstruct.*;
 
 @Mapper(config = MapperConfiguration.class)
 public interface PersonMapper extends CommonMapper<PersonEntity, PersonDTO> {
 
     @Override
-    @Mapping(source = "address", target = "address", qualifiedByName = "addressToEntity")
     @Mapping(source = "user", target = "user", qualifiedByName = "userToEntity")
+    @Mapping(target = "photo", ignore = true)
     PersonEntity toEntity(PersonDTO dto);
 
     @Override
-    @Mapping(source = "address", target = "address", qualifiedByName = "addressToDTO")
     @Mapping(source = "user", target = "user", qualifiedByName = "userToDTO")
     PersonDTO toDto(PersonEntity entity);
 
-    @Named("addressToDTO")
-    AddressDTO addressToDTO(AddressEntity address);
-
-    @Named("addressToEntity")
-    AddressEntity addressToEntity(AddressDTO addressDTO);
+    @Mapping(target = "photo", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dateOfEmployment", ignore = true)
+    PersonEntity updateEntity(PersonDTO dto, @MappingTarget PersonEntity person);
 
     @Named("userToDTO")
     UserDTO userToDTO(UserEntity user);

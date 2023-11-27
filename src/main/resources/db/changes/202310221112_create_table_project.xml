@@ -19,8 +19,7 @@
             <column name="end_of_sprint" type="datetime"/>
             <column name="task_number" type="int" defaultValue="0"/>
             <column name="sprint_number" type="int" defaultValue="0"/>
-            <column name="sprint_goal" type="varchar(100)"/>
-            <column name="photo" type="blob"/>
+            <column name="photo" type="MEDIUMBLOB"/>
             <column name="deleted" type="boolean"/>
             <column name="deleted_time" type="datetime"/>
         </createTable>

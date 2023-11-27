@@ -20,5 +20,7 @@ public class TaskTypeEntity extends CommonEntity {
 
     private String name;
 
-    private byte[] photo;
+    private String icon;
+
+    private String color;
 }

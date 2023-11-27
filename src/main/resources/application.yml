@@ -12,6 +12,10 @@ spring:
           show-sql: true
   liquibase:
     changelog: classpath:db/changelog.yml
+  servlet:
+    multipart:
+      max-request-size: 25MB
+      max-file-size: 25MB
 
 timesheets:
   statistics:
@@ -24,20 +28,10 @@ timesheets:
     accessTokenSecret: 'ACCESS_TOKEN_SECRET_TO_CHANGE'
     refreshTokenValidityTime: 600000000
     refreshTokenSecret: 'REFRESH_TOKEN_SECRET_TO_CHANGE'
-    appNAme: 'timesheets'
+    appName: 'timesheets'
 
 logging:
   level:
     org:
       springframework:
         web: debug
-
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-
-security:
-  - bearerAuth: []

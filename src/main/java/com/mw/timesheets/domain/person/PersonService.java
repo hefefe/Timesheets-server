@@ -11,7 +11,7 @@ public interface PersonService {
 
     List<PersonDTO> getAllUsers();
 
-    List<PersonDTO> saveUsers(List<PersonDTO> persons);
+    PersonDTO saveUser(PersonDTO persons);
 
     void deleteUsers(List<Long> ids);
 
@@ -21,9 +21,7 @@ public interface PersonService {
 
     List<Position> getJobPosition();
 
-    List<String> getGenders();
-
-    List<PersonDTO> savePersonPhoto(Long personId, MultipartFile photo);
+    PersonDTO savePersonPhoto(Long personId, MultipartFile photo);
 
     PersonDTO getLoggedInUSer();
 }
