@@ -211,9 +211,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     }
 
+    //TODO: moze tu byc cos nie tak z equals
     private Long getTimeOfCompletion(TaskEntity task, PersonEntity person) {
         return person.getHistory().stream()
-                .filter(history -> history.getTaskName().equals(task.getName()))
+                .filter(history -> history.getTask().equals(task))
                 .map(history -> ChronoUnit.MINUTES.between(history.getStarted(), history.getEnded()))
                 .reduce(0L, Long::sum);
     }
@@ -264,7 +265,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private BigDecimal moneySpentOnProject(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getPersonsInProject().stream()
-                .map(person -> calculatePayForUser(person, from, to, historyEntity -> historyEntity.getProjectKey().equals(project.getKey())))
+                .map(person -> calculatePayForUser(person, from, to, historyEntity -> historyEntity.getTask().getProject().equals(project)))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

@@ -38,6 +38,7 @@ public class PersonServiceImpl implements PersonService {
     if (singularPerson.getId() != null){
         var personFromDatabase = personRepository.findById(singularPerson.getId());
         if(personFromDatabase.isPresent()){
+            if(personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), singularPerson.getId()))  throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
             var unwrappedPerson = personFromDatabase.get();
             personMapper.updateEntity(singularPerson, unwrappedPerson);
             unwrappedPerson.getUser().setEmail(singularPerson.getUser().getEmail());
@@ -51,7 +52,7 @@ public class PersonServiceImpl implements PersonService {
             return personMapper.toDto(savedPerson);
         }
     }
-
+        if(personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), 0L))  throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
         var personEntity = personMapper.toEntity(singularPerson);
         personEntity.getUser().setTempPassword(PasswordUtil.generateTempPassword());
         personEntity.getUser().setRole(personEntity.getPosition().getRole());
@@ -105,6 +106,17 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonDTO getLoggedInUSer() {
         return personMapper.toDto(securityUtils.getPersonByEmail());
+    }
+
+    @Override
+    public List<PersonDTO> resetPassword(List<Long> ids) {
+        var users = personRepository.findAllById(ids).stream()
+                .map(PersonEntity::getUser)
+                .peek(user -> user.setPassword(null))
+                .peek(user -> user.setTempPassword(PasswordUtil.generateTempPassword()))
+                .collect(Collectors.toList());
+        userRepository.saveAll(users);
+        return personMapper.toDtos(personRepository.findAllById(ids));
     }
 
 

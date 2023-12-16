@@ -13,7 +13,6 @@ public class BasicTimerDataDTO {
 
     private String description;
 
-    private String projectKey;
+    private Long taskId;
 
-    private String taskName;
 }

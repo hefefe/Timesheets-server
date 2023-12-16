@@ -50,4 +50,9 @@ public class PersonController {
     public ResponseEntity<PersonDTO> savePersonPhoto(@RequestParam Long personId, @RequestParam MultipartFile photo) {
         return ResponseEntity.ok(personService.savePersonPhoto(personId, photo));
     }
+
+    @PostMapping("reset-password")
+    public ResponseEntity<List<PersonDTO>> resetUsersPassword(@RequestParam List<Long> ids) {
+        return new ResponseEntity<>(personService.resetPassword(ids), HttpStatus.OK);
+    }
 }

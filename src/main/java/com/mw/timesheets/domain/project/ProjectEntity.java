@@ -13,9 +13,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -64,6 +62,21 @@ public class ProjectEntity extends CommonEntity {
     @OneToMany(mappedBy = "project")
     private List<ProjectStatisticsEntity> statistics;
 
+
     @OneToMany(mappedBy = "project", cascade = {CascadeType.REMOVE})
     private List<TaskEntity> tasks;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProjectEntity that)) return false;
+        return isDeleted() == that.isDeleted() && Objects.equals(getName(), that.getName()) && Objects.equals(getKey(), that.getKey()) && Objects.equals(getPerson(), that.getPerson()) && getSprintDuration() == that.getSprintDuration() && Objects.equals(getEndOfSprint(), that.getEndOfSprint()) && Objects.equals(getTaskNumber(), that.getTaskNumber()) && Objects.equals(getSprintNumber(), that.getSprintNumber()) && Objects.equals(getDeletedTime(), that.getDeletedTime()) && Arrays.equals(getPhoto(), that.getPhoto()) && Objects.equals(getPersonsInProject(), that.getPersonsInProject()) && Objects.equals(getWorkflow(), that.getWorkflow()) && Objects.equals(getStatistics(), that.getStatistics()) && Objects.equals(getTasks(), that.getTasks());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(getName(), getKey(), getPerson(), getSprintDuration(), getEndOfSprint(), getTaskNumber(), getSprintNumber(), isDeleted(), getDeletedTime(), getPersonsInProject(), getWorkflow(), getStatistics(), getTasks());
+        result = 31 * result + Arrays.hashCode(getPhoto());
+        return result;
+    }
 }

@@ -3,8 +3,11 @@ package com.mw.timesheets.domain.timetrack;
 import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
+import com.mw.timesheets.commons.properties.StatisticsProperties;
 import com.mw.timesheets.commons.util.DateUtils;
+import com.mw.timesheets.commons.util.HolidayType;
 import com.mw.timesheets.domain.person.PersonRepository;
+import com.mw.timesheets.domain.task.TaskRepository;
 import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
 import com.mw.timesheets.domain.timetrack.model.TimeTrackerHistoryDTO;
@@ -17,6 +20,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -34,18 +38,30 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     private final TimerHistoryMapper historyMapper;
     private final SecurityUtils securityUtils;
     private final PersonRepository personRepository;
+    private final TaskRepository taskRepository;
+    private final StatisticsProperties statisticsProperties;
 
     @Override
     public void startTracking(BasicTimerDataDTO timeTrackerData) {
         if (timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId())) {
             throw new CustomErrorException("stop current time tracker", HttpStatus.BAD_REQUEST);
         }
-
+        var loggedEmployee = securityUtils.getPersonByEmail();
         var startTimer = timeTrackerMapper.toEntity(timeTrackerData);
-        startTimer.setPerson(securityUtils.getPersonByEmail());
+        startTimer.setPerson(loggedEmployee);
         startTimer.setStarted(getSystemTime().toLocalTime());
         startTimer.setActivityDate(getSystemTime().toLocalDate().plusDays(1));
+        startTimer.setTask(taskRepository.findById(timeTrackerData.getTaskId()).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)));
+        startTimer.setHourlyPay(loggedEmployee.getHourlyPay());
+        startTimer.setWorkToDoInHours(isNowDateWeekendOrHoliday() ? 0 : loggedEmployee.getWorkDuringWeekInHours()/statisticsProperties.getWorkingDays());
         timeTrackRepository.save(startTimer);
+    }
+
+    private boolean isNowDateWeekendOrHoliday(){
+        var date = LocalDate.now();
+        var isWeekend = date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
+        var isHoliday = Arrays.stream(HolidayType.values()).map(holidayType -> holidayType.apply(date.getYear())).toList().contains(date);
+        return isWeekend || isHoliday;
     }
 
     @Override
@@ -64,7 +80,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
             throw new CustomErrorException("no tracker to stop", HttpStatus.BAD_REQUEST);
         }
         var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail());
-        var person = securityUtils.getPersonByEmail();
+        var person = personRepository.findById(id).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
         var history = timeTrackerMapper.timeTrackerToHistoryEntity(tracker);
         history.setPerson(person);
         history.setEnded(getSystemTime().toLocalTime().plusHours(1));

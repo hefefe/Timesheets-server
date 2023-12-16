@@ -24,4 +24,6 @@ public interface PersonService {
     PersonDTO savePersonPhoto(Long personId, MultipartFile photo);
 
     PersonDTO getLoggedInUSer();
+
+    List<PersonDTO> resetPassword(List<Long> ids);
 }

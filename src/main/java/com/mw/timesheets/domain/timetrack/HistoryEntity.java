@@ -2,6 +2,7 @@ package com.mw.timesheets.domain.timetrack;
 
 import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
+import com.mw.timesheets.domain.task.TaskEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -26,10 +27,6 @@ public class HistoryEntity extends CommonEntity {
 
     private String description;
 
-    private String projectKey;
-
-    private String taskName;
-
     private LocalDate activityDate;
 
     private LocalTime started;
@@ -39,4 +36,12 @@ public class HistoryEntity extends CommonEntity {
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "id")
     private PersonEntity person;
+
+    @ManyToOne
+    @JoinColumn(name = "task_id", referencedColumnName = "id")
+    private TaskEntity task;
+
+    private Integer workToDoInHours;
+
+    private Double hourlyPay;
 }
