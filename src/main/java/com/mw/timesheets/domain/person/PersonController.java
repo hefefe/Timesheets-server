@@ -60,4 +60,9 @@ public class PersonController {
     public ResponseEntity<List<PersonDTO>> getTeamLeadersAndManagers() {
         return ResponseEntity.ok(personService.getTeamLeadersAndManagers());
     }
+
+    @GetMapping("/in-project")
+    public ResponseEntity<List<PersonDTO>> getEmployeesInProject(@RequestParam Long projectId){
+        return ResponseEntity.ok(personService.getEmployeesInProject(projectId));
+    }
 }

@@ -28,4 +28,6 @@ public interface PersonService {
     List<PersonDTO> resetPassword(List<Long> ids);
 
     List<PersonDTO> getTeamLeadersAndManagers();
+
+    List<PersonDTO> getEmployeesInProject(Long projectId);
 }

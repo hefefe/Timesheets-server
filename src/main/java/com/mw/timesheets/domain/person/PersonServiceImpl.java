@@ -1,5 +1,6 @@
 package com.mw.timesheets.domain.person;
 
+import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.commons.util.PasswordUtil;
@@ -7,6 +8,7 @@ import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
 import com.mw.timesheets.domain.person.type.Roles;
+import com.mw.timesheets.domain.project.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ public class PersonServiceImpl implements PersonService {
     private final UserRepository userRepository;
     private final PersonMapper personMapper;
     private final SecurityUtils securityUtils;
+    private final ProjectRepository projectRepository;
 
     @Override
     public List<PersonDTO> getAllUsers() {
@@ -126,6 +129,12 @@ public class PersonServiceImpl implements PersonService {
                 .filter(person -> person.getPosition().getRole() != Roles.ROLE_USER && !person.isDeleted())
                 .map(personMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PersonDTO> getEmployeesInProject(Long projectId) {
+        var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("Project does not exist", HttpStatus.BAD_REQUEST));
+        return personMapper.toDtos(Lists.newArrayList(project.getPersonsInProject()));
     }
 
 
