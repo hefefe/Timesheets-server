@@ -27,21 +27,14 @@ public class PersonDataProvider {
 
         Root<PersonEntity> person = cq.from(PersonEntity.class);
         cq.select(person);
-        Join<PersonEntity, UserEntity> user = person.join("user");
         if (searchPersonDTO.getFirstName() != null)
             predicates.add(cb.like(person.get("firstName"), "%" + searchPersonDTO.getFirstName() + "%"));
-        if (searchPersonDTO.getMiddleName() != null)
-            predicates.add(cb.like(person.get("middleName"), "%" + searchPersonDTO.getMiddleName() + "%"));
         if (searchPersonDTO.getLastName() != null)
             predicates.add(cb.like(person.get("lastName"), "%" + searchPersonDTO.getLastName() + "%"));
         if (searchPersonDTO.getExperience() != null && !searchPersonDTO.getExperience().isEmpty())
             predicates.add(person.get("experience").in(searchPersonDTO.getExperience()));
         if (searchPersonDTO.getPosition() != null && !searchPersonDTO.getPosition().isEmpty())
             predicates.add(person.get("position").in(searchPersonDTO.getPosition()));
-        if (searchPersonDTO.getPhoneNumber() != null)
-            predicates.add(cb.like(person.get("phone"), "%" + searchPersonDTO.getPhoneNumber() + "%"));
-        if (searchPersonDTO.getEmail() != null)
-            predicates.add(cb.like(user.get("email"), "%" + searchPersonDTO.getEmail() + "%"));
         predicates.add(cb.isFalse(person.get("deleted")));
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         cq.select(person);

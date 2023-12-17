@@ -26,4 +26,6 @@ public interface PersonService {
     PersonDTO getLoggedInUSer();
 
     List<PersonDTO> resetPassword(List<Long> ids);
+
+    List<PersonDTO> getTeamLeadersAndManagers();
 }

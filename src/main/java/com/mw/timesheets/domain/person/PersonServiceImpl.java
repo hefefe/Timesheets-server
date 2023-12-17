@@ -6,6 +6,7 @@ import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
 import com.mw.timesheets.domain.person.type.Position;
+import com.mw.timesheets.domain.person.type.Roles;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
@@ -117,6 +118,14 @@ public class PersonServiceImpl implements PersonService {
                 .collect(Collectors.toList());
         userRepository.saveAll(users);
         return personMapper.toDtos(personRepository.findAllById(ids));
+    }
+
+    @Override
+    public List<PersonDTO> getTeamLeadersAndManagers() {
+        return personRepository.findAll().stream()
+                .filter(person -> person.getPosition().getRole() != Roles.ROLE_USER && !person.isDeleted())
+                .map(personMapper::toDto)
+                .collect(Collectors.toList());
     }
 
 

@@ -57,14 +57,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void resetUserPassword(Long id) {
-        var person = personRepository.findById(id).orElseThrow(() -> new CustomErrorException("person not found", HttpStatus.BAD_REQUEST));
-        person.getUser().setPassword(null);
-        person.getUser().setTempPassword(PasswordUtil.generateTempPassword());
-        personRepository.save(person);
-    }
-
-    @Override
     public AuthenticationDTO setUserPassword(ChangePasswordDTO changePassword) {
         if (changePassword.getConfirmPassword() == null || changePassword.getPassword() == null)
             throw new CustomErrorException("password mismatch", HttpStatus.BAD_REQUEST);

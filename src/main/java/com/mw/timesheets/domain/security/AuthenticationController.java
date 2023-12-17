@@ -27,12 +27,6 @@ public class AuthenticationController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/resetPasswordForUser")
-    public ResponseEntity<Void> logout(@RequestParam Long id) {
-        authenticationService.resetUserPassword(id);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/setPassword")
     public ResponseEntity<AuthenticationDTO> logout(@RequestBody ChangePasswordDTO changePasswordDTO) {
         authenticationService.setUserPassword(changePasswordDTO);

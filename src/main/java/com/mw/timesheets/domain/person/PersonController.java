@@ -55,4 +55,9 @@ public class PersonController {
     public ResponseEntity<List<PersonDTO>> resetUsersPassword(@RequestParam List<Long> ids) {
         return new ResponseEntity<>(personService.resetPassword(ids), HttpStatus.OK);
     }
+
+    @GetMapping("/projectMakers")
+    public ResponseEntity<List<PersonDTO>> getTeamLeadersAndManagers() {
+        return ResponseEntity.ok(personService.getTeamLeadersAndManagers());
+    }
 }

@@ -11,7 +11,5 @@ public interface AuthenticationService {
 
     void logout(TokenDTO tokenDTO);
 
-    void resetUserPassword(Long id);
-
     AuthenticationDTO setUserPassword(ChangePasswordDTO changePasswordDTO);
 }

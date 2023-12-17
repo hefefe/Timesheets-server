@@ -16,15 +16,9 @@ import java.util.List;
 public class SearchPersonDTO {
     private String firstName;
 
-    private String middleName;
-
     private String lastName;
-
-    private String phoneNumber;
 
     private List<Experience> experience;
 
     private List<Position> position;
-
-    private String email;
 }

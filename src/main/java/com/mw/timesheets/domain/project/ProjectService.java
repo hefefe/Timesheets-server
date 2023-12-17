@@ -15,5 +15,4 @@ public interface ProjectService {
     ProjectDTO getProject(Long id);
 
     List<ProjectDTO> getProjectsByName(String name);
-
 }

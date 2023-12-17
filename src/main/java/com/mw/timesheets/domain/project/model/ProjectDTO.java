@@ -20,8 +20,6 @@ public class ProjectDTO {
 
     private String name;
 
-    private String sprintGoal;
-
     private Integer sprintNumber;
 
     private LocalDateTime endOfSprint;
