@@ -1,6 +1,8 @@
 package com.mw.timesheets.domain.project;
 
+import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,4 +17,6 @@ public interface ProjectService {
     ProjectDTO getProject(Long id);
 
     List<ProjectDTO> getProjectsByName(String name);
+
+    ProjectDTO savePersonPhoto(Long projectId, MultipartFile photo);
 }

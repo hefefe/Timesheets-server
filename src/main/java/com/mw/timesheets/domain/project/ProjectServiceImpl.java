@@ -4,10 +4,13 @@ import com.google.common.collect.Sets;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.domain.person.PersonRepository;
+import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +83,15 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public List<ProjectDTO> getProjectsByName(String name) {
         return null;
+    }
+
+    @Override
+    @SneakyThrows
+    public ProjectDTO savePersonPhoto(Long projectId, MultipartFile photo) {
+        var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
+        project.setPhoto(photo.getBytes());
+        projectRepository.save(project);
+        return projectMapper.toDto(project);
     }
 
     private String getKeyFromName(String name) {
