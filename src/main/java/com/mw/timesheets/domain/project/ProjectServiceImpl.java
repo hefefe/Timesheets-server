@@ -42,10 +42,10 @@ public class ProjectServiceImpl implements ProjectService {
         project.setTaskNumber(0);
         project.setEndOfSprint(project.getEndOfSprint().plusHours(2));
         project.setPersonsInProject(Sets.newHashSet(personRepository.findAllById(projectDTO.getPersons())));
-        project.setKey(getKeyFromName(projectDTO.getName()));
         var savedProject = projectRepository.save(project);
         project.getWorkflow().forEach(workflow -> workflow.setProject(savedProject));
         workflowRepository.saveAll(savedProject.getWorkflow());
+        savedProject.setKey(getKeyFromName(projectDTO.getName(), savedProject.getId()));
         return projectMapper.toDto(savedProject);
     }
 
@@ -57,7 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectMapper.updateEntity(projectDTO, project);
         project.setPerson(personMapper.toEntity(projectDTO.getPerson()));
         project.setPersonsInProject(Sets.newHashSet(personRepository.findAllById(projectDTO.getPersons())));
-        project.setKey(getKeyFromName(project.getName()));
+        project.setKey(getKeyFromName(projectDTO.getName(), project.getId()));
         project.setEndOfSprint(project.getEndOfSprint().minusWeeks(oldDuration.getDuration()).plusWeeks(projectDTO.getSprintDuration().getDuration()));
 
         var newWorkflow = projectMapper.workflowStringToEntity(projectDTO.getWorkflow());
@@ -126,11 +126,11 @@ public class ProjectServiceImpl implements ProjectService {
         return projectMapper.toDto(project);
     }
 
-    private String getKeyFromName(String name) {
+    private String getKeyFromName(String name, Long id) {
         String[] arr = name.split(" ");
         return Arrays.stream(arr)
                 .map(word -> word.substring(0, 1).toUpperCase())
-                .collect(Collectors.joining());
+                .collect(Collectors.joining()) + id;
     }
 
 
