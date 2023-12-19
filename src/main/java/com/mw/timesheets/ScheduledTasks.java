@@ -44,6 +44,7 @@ public class ScheduledTasks {
 
     public void saveProgress(List<ProjectEntity> projects) {
         var projectStatistics = projects.stream()
+                .filter(project -> project.getSprintNumber() != 0)
                 .filter(project -> !project.isDeleted())
                 .map(project -> ProjectStatisticsEntity.builder()
                         .day(getSystemTime().toLocalDate())
@@ -73,16 +74,16 @@ public class ScheduledTasks {
     @Transactional
     public void modifyProjects() {
         var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime());
-        if (projects != null) {
-            if (projects.isEmpty()) return;
-            saveProgress(projects);
-            savePersonStatistics(projects);
-            projectNextIteration(projects);
-        }
+
+        if (projects.isEmpty()) return;
+        saveProgress(projects);
+        savePersonStatistics(projects);
+        projectNextIteration(projects);
     }
 
     private void savePersonStatistics(List<ProjectEntity> projects) {
         projects.stream()
+                .filter(project -> project.getSprintNumber() != 0)
                 .map(project -> project.getPersonsInProject().stream()
                         .map(person -> PersonStatisticsEntity.builder()
                                 .person(person)

@@ -1,5 +1,6 @@
 package com.mw.timesheets.domain.project.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.project.type.SprintDurationType;
 import lombok.AllArgsConstructor;

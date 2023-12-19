@@ -16,7 +16,5 @@ public interface ProjectService {
 
     ProjectDTO getProject(Long id);
 
-    List<ProjectDTO> getProjectsByName(String name);
-
     ProjectDTO savePersonPhoto(Long projectId, MultipartFile photo);
 }

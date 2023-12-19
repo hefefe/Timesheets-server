@@ -11,7 +11,7 @@ public enum Position {
     BACKEND("backend", Roles.ROLE_USER),
     FRONTEND("frontend", Roles.ROLE_USER),
     DEVOPS("devops", Roles.ROLE_USER),
-    QA("quality assurance", Roles.ROLE_USER),
+    TESTER("tester", Roles.ROLE_USER),
     TEAM_LEADER("team leader", Roles.ROLE_LEADER),
     MANAGER("manager", Roles.ROLE_ADMIN);
 
