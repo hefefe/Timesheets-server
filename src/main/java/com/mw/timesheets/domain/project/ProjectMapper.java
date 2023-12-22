@@ -2,9 +2,7 @@ package com.mw.timesheets.domain.project;
 
 import com.mw.timesheets.commons.mapper.CommonMapper;
 import com.mw.timesheets.commons.mapper.MapperConfiguration;
-import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonMapper;
-import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -2,7 +2,6 @@ package com.mw.timesheets.domain.security;
 
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
-import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.person.UserEntity;
@@ -16,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

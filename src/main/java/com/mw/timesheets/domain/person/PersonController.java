@@ -2,8 +2,6 @@ package com.mw.timesheets.domain.person;
 
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.model.SearchPersonDTO;
-import com.mw.timesheets.domain.person.type.Experience;
-import com.mw.timesheets.domain.person.type.Position;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +60,7 @@ public class PersonController {
     }
 
     @GetMapping("/in-project")
-    public ResponseEntity<List<PersonDTO>> getEmployeesInProject(@RequestParam Long projectId){
+    public ResponseEntity<List<PersonDTO>> getEmployeesInProject(@RequestParam Long projectId) {
         return ResponseEntity.ok(personService.getEmployeesInProject(projectId));
     }
 }

@@ -34,7 +34,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDTO saveProject(ProjectDTO projectDTO) {
-        if(projectDTO.getId() != null) {
+        if (projectDTO.getId() != null) {
             return editProject(projectDTO);
         }
         var project = projectMapper.toEntity(projectDTO);
@@ -49,7 +49,7 @@ public class ProjectServiceImpl implements ProjectService {
         return projectMapper.toDto(savedProject);
     }
 
-    private ProjectDTO editProject(ProjectDTO projectDTO){
+    private ProjectDTO editProject(ProjectDTO projectDTO) {
         var project = projectRepository.findById(projectDTO.getId()).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
         var oldWorkflow = project.getWorkflow();
         var oldDuration = project.getSprintDuration();
@@ -61,7 +61,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setEndOfSprint(project.getEndOfSprint().minusWeeks(oldDuration.getDuration()).plusWeeks(projectDTO.getSprintDuration().getDuration()));
 
         var newWorkflow = projectMapper.workflowStringToEntity(projectDTO.getWorkflow());
-        if(!oldWorkflow.equals(newWorkflow)) {
+        if (!oldWorkflow.equals(newWorkflow)) {
             var savedWorkflow = workflowRepository.saveAll(newWorkflow);
 
             if (oldWorkflow.get(oldWorkflow.size() - 1).getTasks() != null) {
@@ -114,7 +114,9 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public ProjectDTO getProject(Long id) {
-        return projectMapper.toDto(projectRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST)));
+        var project =  projectMapper.toDto(projectRepository.findById(id).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST)));
+        project.setEndOfSprint(project.getEndOfSprint().minusHours(1));
+        return project;
     }
 
     @Override

@@ -5,18 +5,12 @@ import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.commons.util.DateUtils;
-import com.mw.timesheets.domain.person.PersonMapper;
 import com.mw.timesheets.domain.person.PersonRepository;
-import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
 import com.mw.timesheets.domain.person.type.Roles;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
 import com.mw.timesheets.domain.project.WorkflowRepository;
-import com.mw.timesheets.domain.task.model.CommentDTO;
-import com.mw.timesheets.domain.task.model.TaskDTO;
-import com.mw.timesheets.domain.task.model.TaskTypeDTO;
-import com.mw.timesheets.domain.task.model.WorkflowDTO;
-import jakarta.activation.MimeType;
+import com.mw.timesheets.domain.task.model.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -24,9 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,7 +34,6 @@ public class TaskServiceImpl implements TaskService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
     private final PersonRepository personRepository;
-    private final PersonMapper personMapper;
     private final TaskTypeMapper taskTypeMapper;
     private final SecurityUtils securityUtils;
     private final CommentRepository commentRepository;
@@ -74,10 +64,14 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
-    public List<TaskDTO> getTasksFroProject(Long projectId) {
+    public List<TaskGroupDTO> getTasksForProject(Long projectId) {
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
-        var tasks = project.getTasks();
-        return taskMapper.toDtos(tasks);
+        return project.getWorkflow().stream()
+                .map(workflow -> TaskGroupDTO.builder()
+                        .workflowDTO(workflowMapper.toDto(workflow))
+                        .tasks(taskMapper.toDtos(workflow.getTasks()))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -98,13 +92,6 @@ public class TaskServiceImpl implements TaskService {
         return workflowMapper.toDtos(Lists.newArrayList(workflow));
     }
 
-    @Override
-    public List<BasicPersonDataDTO> getPeopleWorkingOnProject(Long projectId) {
-        var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
-        return project.getPersonsInProject().stream()
-                .map(personMapper::toBasicData)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public List<TaskTypeDTO> getTaskTypes() {
@@ -175,16 +162,16 @@ public class TaskServiceImpl implements TaskService {
         }
         project.setTaskNumber(project.getTaskNumber() + 1);
         projectRepository.save(project);
-        return String.format("%s-%d", project.getKey(), project.getTaskNumber());
+        return project.getTaskNumber().toString();
     }
 
-    private String getExtensionFromFileName(String fileName){
+    private String getExtensionFromFileName(String fileName) {
         String[] arr = fileName.split("\\.");
-        return arr[arr.length-1];
+        return arr[arr.length - 1];
     }
 
     @SneakyThrows
-    private CommentResourceEntity mapMultipartFileToEntity(MultipartFile multipartFile, CommentEntity comment){
+    private CommentResourceEntity mapMultipartFileToEntity(MultipartFile multipartFile, CommentEntity comment) {
         return CommentResourceEntity.builder()
                 .resource(multipartFile.getBytes())
                 .extension(getExtensionFromFileName(multipartFile.getName()))

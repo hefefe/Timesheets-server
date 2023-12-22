@@ -39,24 +39,26 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public PersonDTO saveUser(PersonDTO singularPerson) {
-    if (singularPerson.getId() != null){
-        var personFromDatabase = personRepository.findById(singularPerson.getId());
-        if(personFromDatabase.isPresent()){
-            if(personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), singularPerson.getId()))  throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
-            var unwrappedPerson = personFromDatabase.get();
-            personMapper.updateEntity(singularPerson, unwrappedPerson);
-            unwrappedPerson.getUser().setEmail(singularPerson.getUser().getEmail());
-            unwrappedPerson.getUser().setRole(singularPerson.getPosition().getRole());
-            PersonEntity savedPerson = personRepository.save(unwrappedPerson);
+        if (singularPerson.getId() != null) {
+            var personFromDatabase = personRepository.findById(singularPerson.getId());
+            if (personFromDatabase.isPresent()) {
+                if (personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), singularPerson.getId()))
+                    throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
+                var unwrappedPerson = personFromDatabase.get();
+                personMapper.updateEntity(singularPerson, unwrappedPerson);
+                unwrappedPerson.getUser().setEmail(singularPerson.getUser().getEmail());
+                unwrappedPerson.getUser().setRole(singularPerson.getPosition().getRole());
+                PersonEntity savedPerson = personRepository.save(unwrappedPerson);
 
-            var user = savedPerson.getUser();
-            user.setPerson(savedPerson);
-            userRepository.save(user);
+                var user = savedPerson.getUser();
+                user.setPerson(savedPerson);
+                userRepository.save(user);
 
-            return personMapper.toDto(savedPerson);
+                return personMapper.toDto(savedPerson);
+            }
         }
-    }
-        if(personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), 0L))  throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
+        if (personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), 0L))
+            throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
         var personEntity = personMapper.toEntity(singularPerson);
         personEntity.getUser().setTempPassword(PasswordUtil.generateTempPassword());
         personEntity.getUser().setRole(personEntity.getPosition().getRole());

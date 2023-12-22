@@ -1,6 +1,5 @@
 package com.mw.timesheets.domain.project;
 
-import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.project.model.ProjectDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

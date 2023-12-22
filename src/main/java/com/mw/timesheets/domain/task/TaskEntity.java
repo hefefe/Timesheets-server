@@ -4,7 +4,6 @@ import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.WorkflowEntity;
-import com.mw.timesheets.domain.statistcs.ProjectStatisticsEntity;
 import com.mw.timesheets.domain.timetrack.HistoryEntity;
 import com.mw.timesheets.domain.timetrack.TimeTrackEntity;
 import jakarta.persistence.*;

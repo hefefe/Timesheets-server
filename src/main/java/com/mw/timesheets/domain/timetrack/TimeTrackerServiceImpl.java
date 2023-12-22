@@ -53,11 +53,11 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         startTimer.setActivityDate(getSystemTime().toLocalDate().plusDays(1));
         startTimer.setTask(taskRepository.findById(timeTrackerData.getTaskId()).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)));
         startTimer.setHourlyPay(loggedEmployee.getHourlyPay());
-        startTimer.setWorkToDoInHours(isNowDateWeekendOrHoliday() ? 0 : loggedEmployee.getWorkDuringWeekInHours()/statisticsProperties.getWorkingDays());
+        startTimer.setWorkToDoInHours(isNowDateWeekendOrHoliday() ? 0 : loggedEmployee.getWorkDuringWeekInHours() / statisticsProperties.getWorkingDays());
         timeTrackRepository.save(startTimer);
     }
 
-    private boolean isNowDateWeekendOrHoliday(){
+    private boolean isNowDateWeekendOrHoliday() {
         var date = LocalDate.now();
         var isWeekend = date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY;
         var isHoliday = Arrays.stream(HolidayType.values()).map(holidayType -> holidayType.apply(date.getYear())).toList().contains(date);

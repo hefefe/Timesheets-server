@@ -1,10 +1,6 @@
 package com.mw.timesheets.domain.task;
 
-import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
-import com.mw.timesheets.domain.task.model.CommentDTO;
-import com.mw.timesheets.domain.task.model.TaskDTO;
-import com.mw.timesheets.domain.task.model.TaskTypeDTO;
-import com.mw.timesheets.domain.task.model.WorkflowDTO;
+import com.mw.timesheets.domain.task.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +22,8 @@ public class TaskController {
     }
 
     @GetMapping("project")
-    public ResponseEntity<List<TaskDTO>> getTasksFroProject(@RequestParam Long projectId) {
-        return ResponseEntity.ok(taskService.getTasksFroProject(projectId));
+    public ResponseEntity<List<TaskGroupDTO>> getTasksFroProject(@RequestParam Long projectId) {
+        return ResponseEntity.ok(taskService.getTasksForProject(projectId));
     }
 
     @GetMapping
@@ -46,11 +42,6 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getWorkflowForProject(projectId));
     }
 
-    @GetMapping("hr")
-    public ResponseEntity<List<BasicPersonDataDTO>> getPeopleWorkingOnProject(@RequestParam Long projectId) {
-        return ResponseEntity.ok(taskService.getPeopleWorkingOnProject(projectId));
-    }
-
     @GetMapping("types")
     public ResponseEntity<List<TaskTypeDTO>> getTaskTypes() {
         return ResponseEntity.ok(taskService.getTaskTypes());
@@ -67,7 +58,7 @@ public class TaskController {
     }
 
     @PostMapping("comment")
-    public ResponseEntity<CommentDTO> saveComment(@RequestBody CommentDTO commentDTO,@RequestParam Long taskId) {
+    public ResponseEntity<CommentDTO> saveComment(@RequestBody CommentDTO commentDTO, @RequestParam Long taskId) {
         return ResponseEntity.ok(taskService.saveComment(commentDTO, taskId));
     }
 
