@@ -13,9 +13,10 @@ import org.mapstruct.Named;
 @Mapper(config = MapperConfiguration.class)
 public interface PersonMapper extends CommonMapper<PersonEntity, PersonDTO> {
 
+    //TODO: jeżeli jakieś błędy związane ze zdjęciem persona to patrz tu
     @Override
     @Mapping(source = "user", target = "user", qualifiedByName = "userToEntity")
-    @Mapping(target = "photo", ignore = true)
+//    @Mapping(target = "photo", ignore = true)
     PersonEntity toEntity(PersonDTO dto);
 
     @Override

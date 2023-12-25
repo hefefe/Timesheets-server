@@ -55,7 +55,9 @@ public class ProjectServiceImpl implements ProjectService {
         var oldDuration = project.getSprintDuration();
 
         projectMapper.updateEntity(projectDTO, project);
-        project.setPerson(personMapper.toEntity(projectDTO.getPerson()));
+        var person = personMapper.toEntity(projectDTO.getPerson());
+        person.setPhoto(projectDTO.getPerson().getPhoto());
+        project.setPerson(person);
         project.setPersonsInProject(Sets.newHashSet(personRepository.findAllById(projectDTO.getPersons())));
         project.setKey(getKeyFromName(projectDTO.getName(), project.getId()));
         project.setEndOfSprint(project.getEndOfSprint().minusWeeks(oldDuration.getDuration()).plusWeeks(projectDTO.getSprintDuration().getDuration()));

@@ -42,22 +42,22 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDTO saveTask(TaskDTO taskDTO, Long projectId) {
         var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
-        var isTaskDone = Iterables.getLast(project.getWorkflow()).getName().equals(taskDTO.getWorkflow().getName());
-        if (securityUtils.getRole() == Roles.ROLE_USER && isTaskDone)
-            throw new CustomErrorException("cannot set to done by user", HttpStatus.BAD_REQUEST);
-
         var task = taskMapper.toEntity(taskDTO);
-        task.setTaskType(taskTypeRepository.findById(taskDTO.getTaskType().getId()).orElseThrow(() -> new CustomErrorException("task type does not exist", HttpStatus.BAD_REQUEST)));
-        task.setWorkflow(workflowRepository.findById(taskDTO.getWorkflow().getId()).orElseThrow(() -> new CustomErrorException("workflow element does not exist", HttpStatus.BAD_REQUEST)));
-        task.setPerson(personRepository.findById(taskDTO.getPerson().getId()).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST)));
 
         task.setProject(project);
         task.setKey(generateKeyForTask(project, task.getKey()));
-        if (isTaskDone && task.getDoneDate() == null) {
-            task.setDoneDate(getSystemTime().toLocalDate());
-        } else if (!isTaskDone) {
-            task.setDoneDate(null);
+        task.setWorkflow(task.getWorkflow() != null? task.getWorkflow() : project.getWorkflow().stream().findFirst().orElseThrow(() -> new CustomErrorException("No workflow", HttpStatus.INTERNAL_SERVER_ERROR)));
+        if (taskDTO.getWorkflow() != null) {
+            var isTaskDone = Iterables.getLast(project.getWorkflow()).getName().equals(taskDTO.getWorkflow().getName());
+            if (securityUtils.getRole() == Roles.ROLE_USER && isTaskDone)
+                throw new CustomErrorException("cannot set to done by user", HttpStatus.BAD_REQUEST);
+            if (isTaskDone && task.getDoneDate() == null) {
+                task.setDoneDate(getSystemTime().toLocalDate());
+            } else if (!isTaskDone) {
+                task.setDoneDate(null);
+            }
         }
+
         taskRepository.save(task);
         return taskMapper.toDto(task);
     }

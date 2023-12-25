@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.task.model;
 
 import com.mw.timesheets.domain.person.model.BasicPersonDataDTO;
+import com.mw.timesheets.domain.person.model.PersonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +23,7 @@ public class TaskDTO {
 
     private Integer storyPoints;
 
-    private BasicPersonDataDTO person;
+    private PersonDTO person;
 
     private TaskTypeDTO taskType;
 
