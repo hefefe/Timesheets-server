@@ -25,7 +25,7 @@ import java.util.Objects;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@SQLDelete(sql = "UPDATE TASK SET deleted = true, deleted_time = NOW() WHERE id=?; DELETE FROM COMMENT_RESOURCES WHERE comment_id=?;")
+@SQLDelete(sql = "UPDATE TASK SET deleted = true, deleted_time = NOW() WHERE id=?;")
 @Table(name = "TASK")
 public class TaskEntity extends CommonEntity {
 

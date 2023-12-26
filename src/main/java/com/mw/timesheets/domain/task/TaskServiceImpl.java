@@ -69,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
         return project.getWorkflow().stream()
                 .map(workflow -> TaskGroupDTO.builder()
                         .workflowDTO(workflowMapper.toDto(workflow))
-                        .tasks(taskMapper.toDtos(workflow.getTasks()))
+                        .tasks(taskMapper.toDtos(workflow.getTasks().stream().filter(task -> !task.isDeleted()).collect(Collectors.toList())))
                         .build())
                 .collect(Collectors.toList());
     }
