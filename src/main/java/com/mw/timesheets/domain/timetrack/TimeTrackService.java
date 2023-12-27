@@ -2,6 +2,7 @@ package com.mw.timesheets.domain.timetrack;
 
 import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
+import com.mw.timesheets.domain.timetrack.model.IsStartedDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -13,11 +14,11 @@ public interface TimeTrackService {
 
     void stopTrackingTime();
 
-    LocalTime isStarted();
+    IsStartedDTO isStarted();
 
     void stopTrackingTime(Long id);
 
-    HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long PersonId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate);
+    HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long PersonId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate, boolean withStartedTime);
 
     HistoryWithTotalTimeDTO getHistoryOfUser();
 }

@@ -8,10 +8,7 @@ import com.mw.timesheets.commons.util.DateUtils;
 import com.mw.timesheets.commons.util.HolidayType;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.task.TaskRepository;
-import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
-import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
-import com.mw.timesheets.domain.timetrack.model.TimeTrackerHistoryDTO;
-import com.mw.timesheets.domain.timetrack.model.TrackedDataDTO;
+import com.mw.timesheets.domain.timetrack.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -50,7 +47,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var startTimer = timeTrackerMapper.toEntity(timeTrackerData);
         startTimer.setPerson(loggedEmployee);
         startTimer.setStarted(getSystemTime().toLocalTime());
-        startTimer.setActivityDate(getSystemTime().toLocalDate().plusDays(1));
+        startTimer.setActivityDate(getSystemTime().toLocalDate());
         startTimer.setTask(taskRepository.findById(timeTrackerData.getTaskId()).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)));
         startTimer.setHourlyPay(loggedEmployee.getHourlyPay());
         startTimer.setWorkToDoInHours(isNowDateWeekendOrHoliday() ? 0 : loggedEmployee.getWorkDuringWeekInHours() / statisticsProperties.getWorkingDays());
@@ -70,8 +67,17 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     }
 
     @Override
-    public LocalTime isStarted() {
-        return timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail()).getStarted();
+    public IsStartedDTO isStarted() {
+        var tracker =  timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail());
+        if(tracker.isPresent()){
+            return IsStartedDTO.builder()
+                    .startedTime(tracker.get().getStarted().minusHours(1))
+                    .description(tracker.get().getDescription())
+                    .taskId(tracker.get().getTask().getId())
+                    .projectId(tracker.get().getTask().getProject().getId())
+                    .build();
+        }
+        return IsStartedDTO.builder().build();
     }
 
     @Override
@@ -79,7 +85,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         if (!timeTrackRepository.existsByPersonId(id)) {
             throw new CustomErrorException("no tracker to stop", HttpStatus.BAD_REQUEST);
         }
-        var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail());
+        var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail()).orElseThrow(() -> new CustomErrorException("User not found", HttpStatus.BAD_REQUEST));
         var person = personRepository.findById(id).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
         var history = timeTrackerMapper.timeTrackerToHistoryEntity(tracker);
         history.setPerson(person);
@@ -90,15 +96,17 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     }
 
     @Override
-    public HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long personId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
+    public HistoryWithTotalTimeDTO getHistoryOfGivenUser(Long personId, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate, boolean withStartedTime) {
         var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
-        var timer = timeTrackRepository.findByPersonUserEmail(person.getUser().getEmail());
-        var timerToHistory = timeTrackerMapper.timeTrackerToHistoryEntity(timer);
         var historyFromPerson = person.getHistory();
 
-        if (timerToHistory != null) {
-            timerToHistory.setEnded(DateUtils.getSystemTime().toLocalTime());
-            historyFromPerson.add(timerToHistory);
+        if(withStartedTime) {
+            var timer = timeTrackRepository.findByPersonUserEmail(person.getUser().getEmail()).orElseThrow(() -> new CustomErrorException("User not found", HttpStatus.BAD_REQUEST));
+            var timerToHistory = timeTrackerMapper.timeTrackerToHistoryEntity(timer);
+            if (timerToHistory != null) {
+                timerToHistory.setEnded(DateUtils.getSystemTime().toLocalTime());
+                historyFromPerson.add(timerToHistory);
+            }
         }
 
         var historyMap = historyFromPerson.stream()
@@ -114,6 +122,8 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
                 .time(historyList.stream()
                         .map(TimeTrackerHistoryDTO::getTime)
                         .reduce(0L, Long::sum))
+                .from(from)
+                .to(to)
                 .build();
     }
 
@@ -121,7 +131,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     public HistoryWithTotalTimeDTO getHistoryOfUser() {
         var monday = getSystemTime().toLocalDate().with(DayOfWeek.MONDAY);
         var sunday = getSystemTime().toLocalDate().with(DayOfWeek.SUNDAY);
-        return getHistoryOfGivenUser(securityUtils.getPersonByEmail().getId(), monday, sunday, historyEntity -> true);
+        return getHistoryOfGivenUser(securityUtils.getPersonByEmail().getId(), monday, sunday, historyEntity -> true, false);
     }
 
     private List<TimeTrackerHistoryDTO> mapToTimeTrackerHistoryDto(Map<LocalDate, List<TrackedDataDTO>> groupedHistory) {

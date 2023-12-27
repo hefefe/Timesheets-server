@@ -5,20 +5,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class HistoryWithTotalTimeDTO {
+public class IsStartedDTO {
 
-    private List<TimeTrackerHistoryDTO> historyDTOs;
+    private LocalTime startedTime;
 
-    private Long time;
+    private Long taskId;
 
-    private LocalDate from;
+    private Long projectId;
 
-    private  LocalDate to;
+    private String description;
 }

@@ -3,6 +3,7 @@ package com.mw.timesheets.domain.timetrack;
 import com.mw.timesheets.commons.IdFromToRequestDTO;
 import com.mw.timesheets.domain.timetrack.model.BasicTimerDataDTO;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
+import com.mw.timesheets.domain.timetrack.model.IsStartedDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class TimeTrackController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping
+    @DeleteMapping
     public ResponseEntity<Void> stopTrackingTime() {
         timeTrackService.stopTrackingTime();
         return new ResponseEntity<>(HttpStatus.OK);
@@ -31,7 +32,7 @@ public class TimeTrackController {
 
     @PostMapping("history")
     public ResponseEntity<HistoryWithTotalTimeDTO> getHistoryOfGivenUser(@RequestBody IdFromToRequestDTO idFromToRequestDTO) {
-        return ResponseEntity.ok(timeTrackService.getHistoryOfGivenUser(idFromToRequestDTO.getId(), idFromToRequestDTO.getFrom(), idFromToRequestDTO.getTo(), historyEntity -> true));
+        return ResponseEntity.ok(timeTrackService.getHistoryOfGivenUser(idFromToRequestDTO.getId(), idFromToRequestDTO.getFrom(), idFromToRequestDTO.getTo(), historyEntity -> true, false));
     }
 
     @GetMapping("history")
@@ -40,7 +41,7 @@ public class TimeTrackController {
     }
 
     @GetMapping("started/time")
-    public ResponseEntity<LocalTime> getIsStarted() {
+    public ResponseEntity<IsStartedDTO> getIsStarted() {
         return ResponseEntity.ok(timeTrackService.isStarted());
     }
 }

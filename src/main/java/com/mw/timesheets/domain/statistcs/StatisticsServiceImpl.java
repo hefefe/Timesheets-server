@@ -103,7 +103,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private Map<String, Double> getWorkingHoursMap(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
         Map<String, Double> workingMap = new HashMap<>();
-        var history = timeTrackService.getHistoryOfGivenUser(person.getId(), from, to, predicate);
+        var history = timeTrackService.getHistoryOfGivenUser(person.getId(), from, to, predicate, true);
         var holidaysDaysRange = DateUtils.getRangeOfDays(from, to, false, false, true);
         var workingDays = DateUtils.getRangeOfDays(from, to, true, false, false);
         var weekendDays = DateUtils.getRangeOfDays(from, to, false, true, false);
