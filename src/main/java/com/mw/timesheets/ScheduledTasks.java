@@ -1,6 +1,7 @@
 package com.mw.timesheets;
 
 import com.google.common.collect.Iterables;
+import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
@@ -9,6 +10,8 @@ import com.mw.timesheets.domain.statistcs.PersonStatisticsRepository;
 import com.mw.timesheets.domain.statistcs.ProjectStatisticsEntity;
 import com.mw.timesheets.domain.statistcs.ProjectStatisticsRepository;
 import com.mw.timesheets.domain.task.TaskEntity;
+import com.mw.timesheets.domain.task.TaskRepository;
+import com.mw.timesheets.domain.task.TaskService;
 import com.mw.timesheets.domain.timetrack.TimeTrackEntity;
 import com.mw.timesheets.domain.timetrack.TimeTrackRepository;
 import com.mw.timesheets.domain.timetrack.TimeTrackService;
@@ -34,6 +37,7 @@ public class ScheduledTasks {
     private final TimeTrackRepository timeTrackRepository;
     private final TimeTrackService timeTrackService;
     private final PersonStatisticsRepository personStatisticsRepository;
+    private final TaskService taskService;
 
     private void endTimers() {
         timeTrackRepository.findAll().stream()
@@ -59,12 +63,14 @@ public class ScheduledTasks {
 
     private Integer calculateCommittedStoryPoints(ProjectEntity project) {
         return project.getTasks().stream()
+                .filter(task -> !task.isDeleted())
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum);
     }
 
     private Integer calculateDoneStoryPoints(ProjectEntity project) {
         return project.getTasks().stream()
+                .filter(task -> !task.isDeleted())
                 .filter(task -> Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName()))
                 .map(TaskEntity::getStoryPoints)
                 .reduce(0, Integer::sum);
@@ -73,7 +79,7 @@ public class ScheduledTasks {
     @Scheduled(fixedDelay = 5000)
     @Transactional
     public void modifyProjects() {
-        var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime());
+        var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime().plusHours(1));
 
         if (projects.isEmpty()) return;
         saveProgress(projects);
@@ -118,9 +124,13 @@ public class ScheduledTasks {
                 .filter(project -> !project.isDeleted())
                 .peek(project -> project.setEndOfSprint(calculateEndOfSprint(project)))
                 .peek(project -> project.setSprintNumber(project.getSprintNumber() + 1))
-                .peek(project -> project.setTasks(project.getTasks().stream().filter(task -> !Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName())).collect(Collectors.toList())))
+                .peek(this::addItemsToCollection)
                 .collect(Collectors.toList());
         projectRepository.saveAll(modifiedProject);
+    }
+
+    private void addItemsToCollection(ProjectEntity project){
+        taskService.rejectTask(project.getTasks().stream().filter(task -> Iterables.getLast(project.getWorkflow()).getName().equals(task.getWorkflow().getName())).map(CommonEntity::getId).collect(Collectors.toList()));
     }
 
     private LocalDateTime calculateEndOfSprint(ProjectEntity project) {

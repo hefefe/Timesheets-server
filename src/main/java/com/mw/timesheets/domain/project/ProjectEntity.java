@@ -63,7 +63,7 @@ public class ProjectEntity extends CommonEntity {
     private List<ProjectStatisticsEntity> statistics;
 
 
-    @OneToMany(mappedBy = "project", cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.REMOVE}, orphanRemoval = true)
     private List<TaskEntity> tasks;
 
     @Override
