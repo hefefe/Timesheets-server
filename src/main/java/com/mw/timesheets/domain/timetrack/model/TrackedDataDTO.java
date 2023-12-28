@@ -23,4 +23,8 @@ public class TrackedDataDTO extends BasicTimerDataDTO {
     private LocalTime workTo;
 
     private Long time;
+
+    private String taskName;
+
+    private String projectKey;
 }

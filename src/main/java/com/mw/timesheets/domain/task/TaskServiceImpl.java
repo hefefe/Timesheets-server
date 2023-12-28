@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.mw.timesheets.commons.util.DateUtils.getSystemTime;
@@ -101,9 +102,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskDTO> getTasksByProjectAndUser(Long projectId) {
-        var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
-        var tasks = project.getTasks().stream()
-                .filter(task -> securityUtils.getPersonByEmail().getId().equals(task.getPerson().getId()))
+        var tasks = securityUtils.getPersonByEmail().getTasks().stream()
+                .filter(task -> !task.isDeleted())
+                .filter(task -> Objects.equals(task.getProject().getId(), projectId))
                 .collect(Collectors.toList());
         return taskMapper.toDtos(tasks);
     }

@@ -7,6 +7,8 @@ import com.mw.timesheets.commons.properties.StatisticsProperties;
 import com.mw.timesheets.commons.util.DateUtils;
 import com.mw.timesheets.commons.util.HolidayType;
 import com.mw.timesheets.domain.person.PersonRepository;
+import com.mw.timesheets.domain.project.ProjectMapper;
+import com.mw.timesheets.domain.task.TaskMapper;
 import com.mw.timesheets.domain.task.TaskRepository;
 import com.mw.timesheets.domain.timetrack.model.*;
 import lombok.RequiredArgsConstructor;
@@ -37,21 +39,26 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
     private final PersonRepository personRepository;
     private final TaskRepository taskRepository;
     private final StatisticsProperties statisticsProperties;
+    private final TaskMapper taskMapper;
+    private final ProjectMapper projectMapper;
 
     @Override
-    public void startTracking(BasicTimerDataDTO timeTrackerData) {
+    public IsStartedDTO startTracking(BasicTimerDataDTO timeTrackerData) {
         if (timeTrackRepository.existsByPersonId(securityUtils.getPersonByEmail().getId())) {
             throw new CustomErrorException("stop current time tracker", HttpStatus.BAD_REQUEST);
         }
         var loggedEmployee = securityUtils.getPersonByEmail();
         var startTimer = timeTrackerMapper.toEntity(timeTrackerData);
         startTimer.setPerson(loggedEmployee);
-        startTimer.setStarted(getSystemTime().toLocalTime());
+        startTimer.setStarted(getSystemTime().toLocalTime().plusHours(1));
         startTimer.setActivityDate(getSystemTime().toLocalDate());
-        startTimer.setTask(taskRepository.findById(timeTrackerData.getTaskId()).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)));
+        if(timeTrackerData.getTaskId() != null)
+            startTimer.setTask(taskRepository.findById(timeTrackerData.getTaskId()).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)));
         startTimer.setHourlyPay(loggedEmployee.getHourlyPay());
         startTimer.setWorkToDoInHours(isNowDateWeekendOrHoliday() ? 0 : loggedEmployee.getWorkDuringWeekInHours() / statisticsProperties.getWorkingDays());
         timeTrackRepository.save(startTimer);
+
+        return isStarted();
     }
 
     private boolean isNowDateWeekendOrHoliday() {
@@ -73,8 +80,8 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
             return IsStartedDTO.builder()
                     .startedTime(tracker.get().getStarted().minusHours(1))
                     .description(tracker.get().getDescription())
-                    .taskId(tracker.get().getTask().getId())
-                    .projectId(tracker.get().getTask().getProject().getId())
+                    .task(taskMapper.toDto(tracker.get().getTask()))
+                    .project(tracker.get().getTask() != null?projectMapper.toDto(tracker.get().getTask().getProject()):null)
                     .build();
         }
         return IsStartedDTO.builder().build();
@@ -88,6 +95,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var tracker = timeTrackRepository.findByPersonUserEmail(securityUtils.getEmail()).orElseThrow(() -> new CustomErrorException("User not found", HttpStatus.BAD_REQUEST));
         var person = personRepository.findById(id).orElseThrow(() -> new CustomErrorException("person does not exist", HttpStatus.BAD_REQUEST));
         var history = timeTrackerMapper.timeTrackerToHistoryEntity(tracker);
+        history.setId(null);
         history.setPerson(person);
         history.setEnded(getSystemTime().toLocalTime().plusHours(1));
         history.setActivityDate(history.getActivityDate().plusDays(1));
@@ -113,6 +121,8 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
                 .filter(history -> history.getActivityDate().isBefore(to.plusDays(1)) && history.getActivityDate().isAfter(from.minusDays(1)))
                 .filter(predicate)
                 .map(historyMapper::toDto)
+                .peek(time -> time.setWorkFrom(time.getWorkFrom().minusHours(1)))
+                .peek(time -> time.setWorkTo(time.getWorkTo().minusHours(1)))
                 .peek(history -> history.setTime(getTimeDiffInMinutes(history.getWorkFrom(), history.getWorkTo())))
                 .collect(Collectors.groupingBy(TrackedDataDTO::getActivityDate));
 

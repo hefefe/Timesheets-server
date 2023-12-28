@@ -1,5 +1,7 @@
 package com.mw.timesheets.domain.timetrack.model;
 
+import com.mw.timesheets.domain.project.model.ProjectDTO;
+import com.mw.timesheets.domain.task.model.TaskDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,9 +17,9 @@ public class IsStartedDTO {
 
     private LocalTime startedTime;
 
-    private Long taskId;
+    private TaskDTO task;
 
-    private Long projectId;
+    private ProjectDTO project;
 
     private String description;
 }

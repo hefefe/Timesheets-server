@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 public interface TimeTrackService {
 
-    void startTracking(BasicTimerDataDTO timeTrackerData);
+    IsStartedDTO startTracking(BasicTimerDataDTO timeTrackerData);
 
     void stopTrackingTime();
 

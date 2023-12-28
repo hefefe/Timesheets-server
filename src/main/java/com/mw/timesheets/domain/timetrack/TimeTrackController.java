@@ -19,9 +19,8 @@ public class TimeTrackController {
     private final TimeTrackService timeTrackService;
 
     @PostMapping
-    public ResponseEntity<Void> startTracking(@RequestBody BasicTimerDataDTO timeTrackerData) {
-        timeTrackService.startTracking(timeTrackerData);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<IsStartedDTO> startTracking(@RequestBody BasicTimerDataDTO timeTrackerData) {
+        return ResponseEntity.ok(timeTrackService.startTracking(timeTrackerData));
     }
 
     @DeleteMapping
