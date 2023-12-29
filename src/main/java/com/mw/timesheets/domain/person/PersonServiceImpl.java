@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -139,5 +140,22 @@ public class PersonServiceImpl implements PersonService {
         return personMapper.toDtos(Lists.newArrayList(project.getPersonsInProject()));
     }
 
+    @Override
+    public List<PersonDTO> getEmployeesByRank() {
+        var employees = new ArrayList<PersonEntity>();
+        switch (securityUtils.getRole()) {
+            case ROLE_ADMIN -> employees.addAll(personRepository.findAll());
+            case ROLE_LEADER ->employees.addAll(getLeaderWithPeople());
+            case ROLE_USER -> employees.add(securityUtils.getPersonByEmail());
+        }
+        return personMapper.toDtos(employees);
+    }
+
+    private List<PersonEntity> getLeaderWithPeople(){
+        var employees = new ArrayList<PersonEntity>();
+        employees.add(securityUtils.getPersonByEmail());
+        employees.addAll(personRepository.findByLeader(getLoggedInUSer().getId()));
+        return employees;
+    }
 
 }

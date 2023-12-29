@@ -62,7 +62,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         var person = personRepository.findById(personId).orElseThrow(() -> new CustomErrorException("Person not found", HttpStatus.NOT_FOUND));
         return PersonStatisticsDTO.builder()
                 .yearsOfEmployment(getYearsOfEmployment(person))
-                .Pay(calculatePayForUser(person, from, to, historyEntity -> true))
+                .pay(calculatePayForUser(person, from, to, historyEntity -> true))
                 .completionRate(getCompletionRate(person, from, to))
                 .overtimeRatio(overTimeRatioForPerson(person, from, to))
                 .tasksAndHours(getTimeSpentOnTasks(person, from, to))

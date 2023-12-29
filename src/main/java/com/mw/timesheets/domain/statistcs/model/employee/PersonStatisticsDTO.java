@@ -20,7 +20,7 @@ public class PersonStatisticsDTO {
 
     private Double overtimeRatio;
 
-    private BigDecimal Pay;
+    private BigDecimal pay;
 
     private Integer sumOfStoryPointsDone;
 

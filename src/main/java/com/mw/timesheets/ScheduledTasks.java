@@ -80,7 +80,6 @@ public class ScheduledTasks {
     @Transactional
     public void modifyProjects() {
         var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime().plusHours(1));
-
         if (projects.isEmpty()) return;
         saveProgress(projects);
         savePersonStatistics(projects);
@@ -102,7 +101,6 @@ public class ScheduledTasks {
                 .forEach(personStatisticsRepository::saveAll);
     }
 
-    //TODO: 1. dać foreign key dla historii, 2. z historii wyciągać completion rate
     private Double calculateCompletionRate(PersonEntity person, ProjectEntity project) {
         var tasks = person.getTasks();
         var committed = tasks.stream()

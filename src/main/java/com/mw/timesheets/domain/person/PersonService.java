@@ -30,4 +30,6 @@ public interface PersonService {
     List<PersonDTO> getTeamLeadersAndManagers();
 
     List<PersonDTO> getEmployeesInProject(Long projectId);
+
+    List<PersonDTO> getEmployeesByRank();
 }

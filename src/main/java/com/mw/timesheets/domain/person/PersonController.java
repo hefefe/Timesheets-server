@@ -63,4 +63,9 @@ public class PersonController {
     public ResponseEntity<List<PersonDTO>> getEmployeesInProject(@RequestParam Long projectId) {
         return ResponseEntity.ok(personService.getEmployeesInProject(projectId));
     }
+
+    @GetMapping("/for-statistics")
+    public ResponseEntity<List<PersonDTO>> getEmployeesForStatistics() {
+        return ResponseEntity.ok(personService.getEmployeesByRank());
+    }
 }
