@@ -7,10 +7,11 @@ import java.time.LocalDate;
 
 public interface HistoryRepository extends JpaRepository<HistoryEntity, Long> {
 
-    @Query(value = "select SUM(h.ended - h.started)/10000*60 + (SUM(h.ended - h.started) - SUM(h.ended - h.started)/10000*10000)/100 " +
-            "from history h, project p " +
-            "where h.project_key = :projectKey " +
-            "and h.activity_date >= :before " +
-            "and h.activity_date <= :after", nativeQuery = true)
-    Long getTimeSpentBetweenDates(String projectKey, LocalDate before, LocalDate after);
+    @Query(value = "select SUM(h.ended - h.started)/10000*60 + (SUM(h.ended - h.started) - SUM(h.ended - h.started)/10000*10000)/100 as timeSpent " +
+            "from history h " +
+            "left join task t on h.task_id = t.id " +
+            "where t.project_id = :projectId " +
+            "and h.activity_date >= :from " +
+            "and h.activity_date <= :to", nativeQuery = true)
+    Long getTimeSpentBetweenDates(Long projectId, LocalDate from, LocalDate to);
 }

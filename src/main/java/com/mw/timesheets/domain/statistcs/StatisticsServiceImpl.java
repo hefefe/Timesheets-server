@@ -167,15 +167,18 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private List<StoryPointsDoneDTO> getStoryPointsDoneByDate(PersonEntity person, LocalDate from, LocalDate to) {
-        List<StoryPointsDoneDTO> spDone = Lists.newArrayList();
+        List<StoryPointsDoneDTO> spDone = DateUtils.getRangeOfDays(from, to, true, true, true).stream()
+                        .map(date -> StoryPointsDoneDTO.builder()
+                                .date(date)
+                                .storyPoints(0)
+                                .build())
+                                .collect(Collectors.toList());
+
         getTasks(person, from, to).stream()
                 .collect(Collectors.groupingBy(TaskEntity::getDoneDate, Collectors.toList()))
-                .forEach((key, value) -> spDone.add(StoryPointsDoneDTO.builder()
-                        .date(key)
-                        .storyPoints(value.stream()
-                                .map(TaskEntity::getStoryPoints)
-                                .reduce(0, Integer::sum))
-                        .build()));
+                .forEach((key, value) -> spDone.forEach(sp -> sp.setStoryPoints(sp.getDate().isEqual(key) ? value.stream()
+                        .map(TaskEntity::getStoryPoints)
+                        .reduce(0, Integer::sum) : sp.getStoryPoints()>0?sp.getStoryPoints():0 )));
         return spDone;
     }
 
@@ -206,28 +209,31 @@ public class StatisticsServiceImpl implements StatisticsService {
                         .taskName(task.getName())
                         .timeOfCompletion(getTimeOfCompletion(task, person))
                         .build())
+                .filter(task -> task.getTimeOfCompletion() >0)
                 .collect(Collectors.toList());
 
 
     }
 
-    //TODO: moze tu byc cos nie tak z equals
     private Long getTimeOfCompletion(TaskEntity task, PersonEntity person) {
         return person.getHistory().stream()
+                .filter(history -> history.getTask() != null)
                 .filter(history -> history.getTask().equals(task))
                 .map(history -> ChronoUnit.MINUTES.between(history.getStarted(), history.getEnded()))
                 .reduce(0L, Long::sum);
     }
 
     private List<TaskEntity> getTasks(PersonEntity person, LocalDate from, LocalDate to) {
-        return person.getTasks().stream()
-                .filter(task -> task.getDoneDate() != null)
-                .filter(task -> task.getDoneDate().isAfter(from.minusDays(1)) && task.getDoneDate().isBefore(to.plusDays(1)))
+        return person.getHistory().stream()
+                .filter(history -> history.getActivityDate().isAfter(from.minusDays(1)) && history.getActivityDate().isBefore(to.plusDays(1)))
+                .map(HistoryEntity::getTask).distinct()
+                .filter(Objects::nonNull)
+                .filter(task -> task.getDoneDate()!=null)
                 .collect(Collectors.toList());
     }
 
     private Long timeTracked(ProjectEntity project, LocalDate from, LocalDate to) {
-        return historyRepository.getTimeSpentBetweenDates(project.getKey(), from, to);
+        return historyRepository.getTimeSpentBetweenDates(project.getId(), from, to);
     }
 
     private Integer getNumberOfEmployees(ProjectEntity project) {
@@ -257,7 +263,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private List<Integer> getListOfSprintNumbers(ProjectEntity project, LocalDate from, LocalDate to) {
         var weeks = ChronoUnit.WEEKS.between(from, to);
         var numberOfSprints = (int) Math.ceil((double) weeks / project.getSprintDuration().getDuration());
-        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber() + 1)
+        return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber())
                 .boxed()
                 .filter(number -> number > 0)
                 .collect(Collectors.toList());
@@ -265,7 +271,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private BigDecimal moneySpentOnProject(ProjectEntity project, LocalDate from, LocalDate to) {
         return project.getPersonsInProject().stream()
-                .map(person -> calculatePayForUser(person, from, to, historyEntity -> historyEntity.getTask().getProject().equals(project)))
+                .map(person -> calculatePayForUser(person, from, to, historyEntity -> historyEntity.getTask() != null && historyEntity.getTask().getProject().equals(project)))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 

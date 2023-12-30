@@ -46,7 +46,8 @@ public class ProjectServiceImpl implements ProjectService {
         project.getWorkflow().forEach(workflow -> workflow.setProject(savedProject));
         workflowRepository.saveAll(savedProject.getWorkflow());
         savedProject.setKey(getKeyFromName(projectDTO.getName(), savedProject.getId()));
-        return projectMapper.toDto(savedProject);
+        var savedProject2 = projectRepository.save(savedProject);
+        return projectMapper.toDto(savedProject2);
     }
 
     private ProjectDTO editProject(ProjectDTO projectDTO) {

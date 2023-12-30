@@ -140,9 +140,13 @@ public class ScheduledTasks {
         return endOfSprint;
     }
 
+    //TODO: scheduler zmienić
     @Scheduled(cron = "0 0 0 * * *")
     public void saveProjectStats() {
         saveProgress(projectRepository.findAll());
+    }
+    @Scheduled(cron = "0 55 23 * * *")
+    public void endStartedTimers() {
         endTimers();
     }
 }

@@ -3,6 +3,7 @@ package com.mw.timesheets.domain.person;
 import com.google.common.collect.Lists;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
+import com.mw.timesheets.commons.util.DateUtils;
 import com.mw.timesheets.commons.util.PasswordUtil;
 import com.mw.timesheets.domain.person.model.PersonDTO;
 import com.mw.timesheets.domain.person.type.Experience;
@@ -61,6 +62,7 @@ public class PersonServiceImpl implements PersonService {
         if (personRepository.existsByUserEmailAndIdNotLike(singularPerson.getUser().getEmail(), 0L))
             throw new CustomErrorException("email should be unique", HttpStatus.BAD_REQUEST);
         var personEntity = personMapper.toEntity(singularPerson);
+        personEntity.setDateOfEmployment(DateUtils.getSystemTime().toLocalDate());
         personEntity.getUser().setTempPassword(PasswordUtil.generateTempPassword());
         personEntity.getUser().setRole(personEntity.getPosition().getRole());
         PersonEntity savedPerson = personRepository.save(personEntity);

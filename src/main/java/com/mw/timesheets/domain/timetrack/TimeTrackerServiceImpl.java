@@ -51,7 +51,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var startTimer = timeTrackerMapper.toEntity(timeTrackerData);
         startTimer.setPerson(loggedEmployee);
         startTimer.setStarted(getSystemTime().toLocalTime().plusHours(1));
-        startTimer.setActivityDate(getSystemTime().toLocalDate());
+        startTimer.setActivityDate(getSystemTime().toLocalDate().plusDays(1));
         if(timeTrackerData.getTaskId() != null)
             startTimer.setTask(taskRepository.findById(timeTrackerData.getTaskId()).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST)));
         startTimer.setHourlyPay(loggedEmployee.getHourlyPay());
@@ -98,6 +98,9 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         history.setId(null);
         history.setPerson(person);
         history.setEnded(getSystemTime().toLocalTime().plusHours(1));
+        if(!DateUtils.getSystemTime().toLocalDate().isEqual(history.getActivityDate())){
+            history.setEnded(LocalTime.of(23,59,59));
+        }
         history.setActivityDate(history.getActivityDate().plusDays(1));
         historyRepository.save(history);
         timeTrackRepository.deleteById(tracker.getId());
@@ -109,11 +112,13 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var historyFromPerson = person.getHistory();
 
         if(withStartedTime) {
-            var timer = timeTrackRepository.findByPersonUserEmail(person.getUser().getEmail()).orElseThrow(() -> new CustomErrorException("User not found", HttpStatus.BAD_REQUEST));
-            var timerToHistory = timeTrackerMapper.timeTrackerToHistoryEntity(timer);
-            if (timerToHistory != null) {
-                timerToHistory.setEnded(DateUtils.getSystemTime().toLocalTime());
-                historyFromPerson.add(timerToHistory);
+            var timer = timeTrackRepository.findByPersonUserEmail(person.getUser().getEmail());
+            if(timer.isPresent()) {
+                var timerToHistory = timeTrackerMapper.timeTrackerToHistoryEntity(timer.get());
+                if (timerToHistory != null) {
+                    timerToHistory.setEnded(DateUtils.getSystemTime().toLocalTime());
+                    historyFromPerson.add(timerToHistory);
+                }
             }
         }
 
