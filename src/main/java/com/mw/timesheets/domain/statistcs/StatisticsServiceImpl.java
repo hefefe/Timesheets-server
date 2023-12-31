@@ -92,15 +92,12 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private BigDecimal calculatePayForUser(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
 
-        var workingHoursMap = getWorkingHoursMap(person, from, to, predicate);
-
-        return BigDecimal.valueOf(workingHoursMap.get(WORK_HOURS) * person.getHourlyPay()
-                + workingHoursMap.get(OVERTIME_HOURS) * person.getHourlyPay() * statisticsProperties.getOvertimePayRatio()
-                + workingHoursMap.get(HOLIDAY_HOURS) * person.getHourlyPay() * statisticsProperties.getHolidayPayRatio()
-                + workingHoursMap.get(WEEKEND_HOURS) * person.getHourlyPay() * statisticsProperties.getOvertimePayRatio());
-
+        return person.getHistory().stream()
+                .filter(history -> history.getActivityDate().isAfter(from.minusDays(1)) && history.getActivityDate().isBefore(to.plusDays(1)))
+                .map(historyEntity -> historyEntity.getHourlyPay()* (ChronoUnit.MINUTES.between(historyEntity.getStarted(), historyEntity.getEnded())/60.0))
+                .map(BigDecimal::new)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
     private Map<String, Double> getWorkingHoursMap(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
         Map<String, Double> workingMap = new HashMap<>();
         var history = timeTrackService.getHistoryOfGivenUser(person.getId(), from, to, predicate, true);
