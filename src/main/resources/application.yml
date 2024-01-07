@@ -19,7 +19,7 @@ spring:
 
 timesheets:
   statistics:
-    time-interval: 60
+    time-interval: 60.0
     overtime-pay-ratio: 1.5
     holiday-pay-ratio: 2.0
     working-days: 5

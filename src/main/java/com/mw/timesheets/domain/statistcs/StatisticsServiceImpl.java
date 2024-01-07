@@ -10,6 +10,7 @@ import com.mw.timesheets.domain.person.PersonEntity;
 import com.mw.timesheets.domain.person.PersonRepository;
 import com.mw.timesheets.domain.project.ProjectEntity;
 import com.mw.timesheets.domain.project.ProjectRepository;
+import com.mw.timesheets.domain.statistcs.model.MapsForStatistics;
 import com.mw.timesheets.domain.statistcs.model.employee.PersonStatisticsDTO;
 import com.mw.timesheets.domain.statistcs.model.employee.StoryPointsDoneDTO;
 import com.mw.timesheets.domain.statistcs.model.employee.TasksAndHoursDTO;
@@ -18,13 +19,13 @@ import com.mw.timesheets.domain.statistcs.model.project.ProjectStatisticsDTO;
 import com.mw.timesheets.domain.statistcs.model.project.SprintCompletionDTO;
 import com.mw.timesheets.domain.statistcs.model.project.TasksDoneDTO;
 import com.mw.timesheets.domain.task.TaskEntity;
-import com.mw.timesheets.domain.timetrack.HistoryEntity;
-import com.mw.timesheets.domain.timetrack.HistoryRepository;
-import com.mw.timesheets.domain.timetrack.TimeTrackService;
+import com.mw.timesheets.domain.timetrack.*;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
 import com.mw.timesheets.domain.timetrack.model.TimeTrackerHistoryDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -49,11 +50,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final StatisticsProperties statisticsProperties;
     private final ProjectRepository projectRepository;
     private final HistoryRepository historyRepository;
-
-    private final String WORK_HOURS = "WORK_HOURS";
-    private final String OVERTIME_HOURS = "OVERTIME_HOURS";
-    private final String HOLIDAY_HOURS = "HOLIDAY_HOURS";
-    private final String WEEKEND_HOURS = "WEEKEND_HOURS";
+    private final TimeTrackRepository timeTrackRepository;
+    private final TimeTrackerMapper timeTrackerMapper;
 
     @Override
     public PersonStatisticsDTO generateStatisticsForPerson(IdFromToRequestDTO statisticsRequestDTO) {
@@ -92,75 +90,86 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .build();
     }
 
-    private BigDecimal calculatePayForUser(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
+    private BigDecimal calculatePayForUser(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> projectPredicate) {
 
-        return person.getHistory().stream()
-                .filter(history -> history.getActivityDate().isAfter(from.minusDays(1)) && history.getActivityDate().isBefore(to.plusDays(1)))
-                .map(historyEntity -> historyEntity.getHourlyPay()* (ChronoUnit.MINUTES.between(historyEntity.getStarted(), historyEntity.getEnded())/60.0))
-                .map(BigDecimal::new)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-    private Map<String, Double> getWorkingHoursMap(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> predicate) {
-        Map<String, Double> workingMap = new HashMap<>();
-        var history = timeTrackService.getHistoryOfGivenUser(person.getId(), from, to, predicate, true);
-        var holidaysDaysRange = DateUtils.getRangeOfDays(from, to, false, false, true);
-        var workingDays = DateUtils.getRangeOfDays(from, to, true, false, false);
-        var weekendDays = DateUtils.getRangeOfDays(from, to, false, true, false);
-        var expectedHourTime = (long) person.getWorkDuringWeekInHours() / statisticsProperties.getWorkingDays() * statisticsProperties.getTimeInterval();
-
-        var work = (double) getWorkingHours(history,
-                timeTrackerHistoryDTO -> workingDays.contains(timeTrackerHistoryDTO.getDateOfActivity()),
-                time -> time - expectedHourTime <= 0 ? time : expectedHourTime);
-        var overTime = (double) getWorkingHours(history,
-                timeTrackerHistoryDTO -> workingDays.contains(timeTrackerHistoryDTO.getDateOfActivity()),
-                time -> time - expectedHourTime > 0 ? time - expectedHourTime : 0);
-        var holidayWork = (double) getWorkingHours(history, timeTrackerHistoryDTO -> holidaysDaysRange.contains(timeTrackerHistoryDTO.getDateOfActivity()), time -> time);
-        var weekendWork = (double) getWorkingHours(history, timeTrackerHistoryDTO -> weekendDays.contains(timeTrackerHistoryDTO.getDateOfActivity()), time -> time);
-
-        workingMap.put(WORK_HOURS, work / statisticsProperties.getTimeInterval());
-        workingMap.put(OVERTIME_HOURS, overTime / statisticsProperties.getTimeInterval());
-        workingMap.put(HOLIDAY_HOURS, holidayWork / statisticsProperties.getTimeInterval());
-        workingMap.put(WEEKEND_HOURS, weekendWork / statisticsProperties.getTimeInterval());
-        return workingMap;
+        var maps = getMapsForStatistics(person, from, to, projectPredicate);
+        List<BigDecimal> values = Lists.newArrayList();
+        maps.getUserData().forEach((key, value) -> {
+            if(maps.getUserMinutes().get(key)-value.getLeft() * statisticsProperties.getTimeInterval().longValue() > 0){
+                values.add(BigDecimal.valueOf(value.getLeft() * value.getRight()));
+                values.add(BigDecimal.valueOf((maps.getUserMinutes().get(key)/statisticsProperties.getTimeInterval().doubleValue()-value.getLeft())*value.getRight()*statisticsProperties.getOvertimePayRatio()));
+            }else{
+                values.add(BigDecimal.valueOf(maps.getUserMinutes().get(key)/statisticsProperties.getTimeInterval().doubleValue() * value.getRight()));
+            }
+        });
+        return values.stream().reduce(BigDecimal::add).orElse(new BigDecimal(0));
     }
 
-    private Long getWorkingHours(HistoryWithTotalTimeDTO history, Predicate<TimeTrackerHistoryDTO> workingDaysPredicate, Function<Long, Long> mapHours) {
-        return history.getHistoryDTOs().stream()
-                .filter(workingDaysPredicate)
-                .map(TimeTrackerHistoryDTO::getTime)
-                .map(mapHours)
-                .reduce(0L, Long::sum);
-    }
+    private MapsForStatistics getMapsForStatistics(PersonEntity person, LocalDate from, LocalDate to, Predicate<HistoryEntity> projectPredicate){
 
-    private Double calculateExpectedWorkingHours(Integer workDuringWeekInHours, Integer numberOfDays) {
-        return (double) workDuringWeekInHours / statisticsProperties.getWorkingDays() * numberOfDays;
+        var history =  person.getHistory().stream()
+                .filter(projectPredicate)
+                .filter(historyEntity -> historyEntity.getActivityDate().isAfter(from.minusDays(1)) && historyEntity.getActivityDate().isBefore(to.plusDays(1)))
+                .collect(Collectors.toList());
+
+        var timer = timeTrackRepository.findByPersonUserEmail(person.getUser().getEmail());
+        if(timer.isPresent()) {
+            var timerToHistory = timeTrackerMapper.timeTrackerToHistoryEntity(timer.get());
+            if (timerToHistory != null) {
+                timerToHistory.setEnded(DateUtils.getSystemTime().toLocalTime());
+                history.add(timerToHistory);
+            }
+        }
+
+        var userData = new HashMap<LocalDate, Pair<Integer, Double>>();
+        history.stream()
+                .collect(Collectors.groupingBy(HistoryEntity::getActivityDate, Collectors.toList()))
+                .forEach((key, value) -> userData.put(key, new ImmutablePair<>(value.stream().map(HistoryEntity::getWorkToDoInHours).max(Integer::compare).get(), value.stream().map(HistoryEntity::getHourlyPay).max(Double::compare).get())));
+
+        var userMinutes = new HashMap<LocalDate, Long>();
+        history.stream()
+                .collect(Collectors.groupingBy(HistoryEntity::getActivityDate, Collectors.toList()))
+                .forEach((key, value) -> userMinutes.put(key, value.stream().map(historyEntity -> ChronoUnit.MINUTES.between(historyEntity.getStarted(), historyEntity.getEnded())).reduce(Long::sum).orElse(0L)));
+        return MapsForStatistics.builder()
+                .userData(userData)
+                .userMinutes(userMinutes)
+                .build();
     }
 
     private Double overTimeRatioForPerson(PersonEntity person, LocalDate from, LocalDate to) {
-        var workingHoursMap = getWorkingHoursMap(person, from, to, historyEntity -> true);
-        var expectedWorkingHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, to));
-        return (workingHoursMap.get(OVERTIME_HOURS) + workingHoursMap.get(HOLIDAY_HOURS) + workingHoursMap.get(WEEKEND_HOURS)) / expectedWorkingHours * 100;
+        var maps = getMapsForStatistics(person, from, to, historyEntity -> true);
+        List<Pair<Integer, Long>> overtimeHours = Lists.newArrayList();
+        maps.getUserData().forEach((key, value) -> {
+            if(maps.getUserMinutes().get(key)-value.getLeft() * statisticsProperties.getTimeInterval().longValue() > 0){
+                overtimeHours.add(new ImmutablePair<>(value.getLeft(),maps.getUserMinutes().get(key)-value.getLeft()*statisticsProperties.getTimeInterval().longValue()));
+            }
+        });
+        var regularHours = overtimeHours.stream().mapToInt(Pair::getLeft).sum();
+        var overTimeMinutes = overtimeHours.stream().mapToLong(Pair::getRight).sum();
+        return overTimeMinutes/statisticsProperties.getTimeInterval().doubleValue()/regularHours * 100;
     }
 
     private Double getCompletionRate(PersonEntity person, LocalDate from, LocalDate to) {
-        if (person.getStatistics() == null) return 0.0;
+        if (person.getStatistics() == null) return calculateCompletionForCurrentSprint(person, from, to);
 
         var list = person.getStatistics().stream()
                 .filter(statistics -> DateUtils.getRangeOfDays(from, to, true, true, true).contains(statistics.getDateOfSnapshot()))
                 .toList();
 
-        if (list.isEmpty()) {
-            var collection = person.getProjects().stream()
-                    .map(project -> project.getTasks().stream().filter(task -> Objects.equals(task.getPerson().getId(), person.getId())).collect(Collectors.toList()))
-                    .map(taskEntities -> new ImmutablePair<>(taskEntities.stream().map(TaskEntity::getStoryPoints).mapToInt(task-> task).sum(), taskEntities.stream().filter(task -> task.getDoneDate() != null).map(TaskEntity::getStoryPoints).mapToInt(task-> task).sum()))
-                    .map(pair -> (pair.right*1.0)/ pair.left)
-                    .collect(Collectors.toList());
-
-            return getMedian(collection) * 100;
-        }
+        if (list.isEmpty()) return calculateCompletionForCurrentSprint(person, from, to);
 
         var modifiedList = list.stream().map(PersonStatisticsEntity::getCompletionRate).collect(Collectors.toList());
         return getMedian(modifiedList) * 100;
+    }
+
+    private Double calculateCompletionForCurrentSprint(PersonEntity person, LocalDate from, LocalDate to){
+        var collection = person.getProjects().stream()
+                .map(project -> project.getTasks().stream().filter(task -> Objects.equals(task.getPerson().getId(), person.getId())).collect(Collectors.toList()))
+                .map(taskEntities -> new ImmutablePair<>(taskEntities.stream().map(TaskEntity::getStoryPoints).mapToInt(task-> task).sum(), taskEntities.stream().filter(task -> task.getDoneDate() != null).map(TaskEntity::getStoryPoints).mapToInt(task-> task).sum()))
+                .map(pair -> (pair.right*1.0)/ pair.left)
+                .collect(Collectors.toList());
+
+        return getMedian(collection) * 100;
     }
 
     private List<StoryPointsDoneDTO> getStoryPointsDoneByDate(PersonEntity person, LocalDate from, LocalDate to) {
