@@ -16,7 +16,7 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
             "FROM project p " +
             "JOIN person_project pp ON pp.project_id = p.id " +
             "JOIN person u ON pp.person_id = u.id  " +
-            "WHERE u.id=:personId AND p.name LIKE ':name'", nativeQuery = true)
+            "WHERE u.id=:personId AND p.name LIKE :name", nativeQuery = true)
     List<ProjectEntity> findProjectByPersonIdAndNameAndDeletedFalse(@Param("personId") Long id, @Param("name") String name);
 
     List<ProjectEntity> findByEndOfSprintBeforeAndDeletedFalse(LocalDateTime dateTime);

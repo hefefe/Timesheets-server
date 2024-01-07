@@ -24,6 +24,8 @@ import com.mw.timesheets.domain.timetrack.TimeTrackService;
 import com.mw.timesheets.domain.timetrack.model.HistoryWithTotalTimeDTO;
 import com.mw.timesheets.domain.timetrack.model.TimeTrackerHistoryDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -85,7 +87,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .numberOfEmployees(getNumberOfEmployees(project))
                 .sprintCompletion(getSprintCompletion(project))
                 .taskDoneByType(getTaskDoneByType(project, from, to))
-                .velocity(velocity(project, from, to))
+                .velocity(velocity(project))
                 .tasksDone(getTasksDone(project, from, to))
                 .build();
     }
@@ -136,7 +138,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private Double overTimeRatioForPerson(PersonEntity person, LocalDate from, LocalDate to) {
         var workingHoursMap = getWorkingHoursMap(person, from, to, historyEntity -> true);
-        var expectedWorkingHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, LocalDate.now()));
+        var expectedWorkingHours = calculateExpectedWorkingHours(person.getWorkDuringWeekInHours(), DateUtils.getNormalWorkingDaysCount(from, to));
         return (workingHoursMap.get(OVERTIME_HOURS) + workingHoursMap.get(HOLIDAY_HOURS) + workingHoursMap.get(WEEKEND_HOURS)) / expectedWorkingHours * 100;
     }
 
@@ -148,15 +150,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .toList();
 
         if (list.isEmpty()) {
-            var completion = person.getStatistics().stream()
-                    .collect(Collectors.groupingBy(PersonStatisticsEntity::getProject, Collectors.toList()))
-                    .values().stream()
-                    .map(value -> Iterables.getLast(value.stream().sorted(Comparator.comparing(PersonStatisticsEntity::getSprintNumber)).collect(Collectors.toList())))
-                    .map(PersonStatisticsEntity::getCompletionRate)
+            var collection = person.getProjects().stream()
+                    .map(project -> project.getTasks().stream().filter(task -> Objects.equals(task.getPerson().getId(), person.getId())).collect(Collectors.toList()))
+                    .map(taskEntities -> new ImmutablePair<>(taskEntities.stream().map(TaskEntity::getStoryPoints).mapToInt(task-> task).sum(), taskEntities.stream().filter(task -> task.getDoneDate() != null).map(TaskEntity::getStoryPoints).mapToInt(task-> task).sum()))
+                    .map(pair -> (pair.right*1.0)/ pair.left)
                     .collect(Collectors.toList());
 
-            if (completion.isEmpty()) return 0.0;
-            return getMedian(completion) * 100;
+            return getMedian(collection) * 100;
         }
 
         var modifiedList = list.stream().map(PersonStatisticsEntity::getCompletionRate).collect(Collectors.toList());
@@ -246,20 +246,21 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .reduce(0, Integer::sum);
     }
 
-    private Double velocity(ProjectEntity project, LocalDate from, LocalDate to) {
-        return project.getStatistics().stream()
-                .filter(statistics -> getListOfSprintNumbers(project, from, to).contains(statistics.getSprintNumber()))
+    private Double velocity(ProjectEntity project) {
+        var projectVelocity = project.getStatistics().stream()
+                .filter(statistics -> getListOfSprintNumbers(project).contains(statistics.getSprintNumber()))
                 .collect(Collectors.groupingBy(ProjectStatisticsEntity::getSprintNumber, Collectors.toList()))
                 .values().stream()
                 .map(stats -> stats.stream().max(Comparator.comparing(ProjectStatisticsEntity::getStoryPointsDone)).orElse(ProjectStatisticsEntity.builder().storyPointsDone(0).build()))
                 .mapToDouble(ProjectStatisticsEntity::getStoryPointsDone)
                 .average()
-                .orElse(0);
+                .orElse(0.0);
+        if (projectVelocity == 0.0) projectVelocity = project.getTasks().stream().filter(task -> !task.isDeleted()).filter(task -> task.getDoneDate() != null).mapToDouble(TaskEntity::getStoryPoints).sum();
+        return projectVelocity;
     }
 
-    private List<Integer> getListOfSprintNumbers(ProjectEntity project, LocalDate from, LocalDate to) {
-        var weeks = ChronoUnit.WEEKS.between(from, to);
-        var numberOfSprints = (int) Math.ceil((double) weeks / project.getSprintDuration().getDuration());
+    private List<Integer> getListOfSprintNumbers(ProjectEntity project) {
+        var numberOfSprints = 4;
         return IntStream.range(project.getSprintNumber() - numberOfSprints, project.getSprintNumber())
                 .boxed()
                 .filter(number -> number > 0)
