@@ -22,10 +22,4 @@ public interface TaskService {
     List<TaskDTO> getTasksByProjectAndUser(Long projectId);
 
     TaskDTO changeWorkFlow(Long taskId, Long workFlowId);
-
-    CommentDTO saveComment(CommentDTO commentDTO, Long taskId);
-
-    CommentDTO saveCommentResources(List<MultipartFile> multipartFiles, Long CommentId);
-
-    List<CommentDTO> getCommentsForTask(Long taskId);
 }

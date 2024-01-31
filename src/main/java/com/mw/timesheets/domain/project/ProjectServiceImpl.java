@@ -1,6 +1,7 @@
 package com.mw.timesheets.domain.project;
 
 import com.google.common.collect.Sets;
+import com.mw.timesheets.commons.CommonEntity;
 import com.mw.timesheets.commons.errorhandling.CustomErrorException;
 import com.mw.timesheets.commons.jwt.SecurityUtils;
 import com.mw.timesheets.domain.person.PersonMapper;
@@ -42,6 +43,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setTaskNumber(0);
         project.setEndOfSprint(project.getEndOfSprint().plusHours(2));
         project.setPersonsInProject(Sets.newHashSet(personRepository.findAllById(projectDTO.getPersons())));
+        project.setKey(getKeyFromName(projectDTO.getName(), projectRepository.findTopByOrderByIdDesc().map(CommonEntity::getId).orElse(0L))+1);
         var savedProject = projectRepository.save(project);
         project.getWorkflow().forEach(workflow -> workflow.setProject(savedProject));
         workflowRepository.saveAll(savedProject.getWorkflow());

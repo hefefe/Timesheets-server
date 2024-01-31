@@ -56,14 +56,14 @@ public class ProjectEntity extends CommonEntity {
             inverseJoinColumns = @JoinColumn(name = "person_id"))
     private Set<PersonEntity> personsInProject = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<WorkflowEntity> workflow;
 
     @OneToMany(mappedBy = "project")
     private List<ProjectStatisticsEntity> statistics;
 
 
-    @OneToMany(mappedBy = "project", cascade = {CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = {CascadeType.REMOVE}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<TaskEntity> tasks;
 
     @Override

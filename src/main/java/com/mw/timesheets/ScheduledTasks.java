@@ -46,6 +46,7 @@ public class ScheduledTasks {
                 .forEach(person -> timeTrackService.stopTrackingTime(person.getId()));
     }
 
+    @Transactional
     public void saveProgress(List<ProjectEntity> projects) {
         var projectStatistics = projects.stream()
                 .filter(project -> project.getSprintNumber() != 0)
@@ -140,7 +141,7 @@ public class ScheduledTasks {
         return endOfSprint;
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 34 0 * * *")
     public void saveProjectStats() {
         saveProgress(projectRepository.findAll());
     }

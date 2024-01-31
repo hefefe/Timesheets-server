@@ -35,9 +35,4 @@ databaseChangeLog:
   - include:
       file: changes/202311121711_create_table_token_blacklist.xml
       relativeToChangelogFile: true
-  - include:
-      file: changes/202310221225_create_table_comments.xml
-      relativeToChangelogFile: true
-  - include:
-      file: changes/202310221224_create_table_comment_resources.xml
-      relativeToChangelogFile: true
+

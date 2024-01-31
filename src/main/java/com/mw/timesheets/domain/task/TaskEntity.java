@@ -61,9 +61,6 @@ public class TaskEntity extends CommonEntity {
     private WorkflowEntity workflow;
 
     @OneToMany(mappedBy = "task")
-    private List<CommentEntity> comments;
-
-    @OneToMany(mappedBy = "task")
     private List<TimeTrackEntity> timeTrack;
 
     @OneToMany(mappedBy = "task")
@@ -73,11 +70,11 @@ public class TaskEntity extends CommonEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TaskEntity that)) return false;
-        return isDeleted() == that.isDeleted() && Objects.equals(getName(), that.getName()) && Objects.equals(getKey(), that.getKey()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getDoneDate(), that.getDoneDate()) && Objects.equals(getStoryPoints(), that.getStoryPoints()) && Objects.equals(getDeletedTime(), that.getDeletedTime()) && Objects.equals(getTaskType(), that.getTaskType()) && Objects.equals(getProject(), that.getProject()) && Objects.equals(getPerson(), that.getPerson()) && Objects.equals(getWorkflow(), that.getWorkflow()) && Objects.equals(getComments(), that.getComments()) && Objects.equals(getTimeTrack(), that.getTimeTrack()) && Objects.equals(getHistory(), that.getHistory());
+        return isDeleted() == that.isDeleted() && Objects.equals(getName(), that.getName()) && Objects.equals(getKey(), that.getKey()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getDoneDate(), that.getDoneDate()) && Objects.equals(getStoryPoints(), that.getStoryPoints()) && Objects.equals(getDeletedTime(), that.getDeletedTime()) && Objects.equals(getTaskType(), that.getTaskType()) && Objects.equals(getProject(), that.getProject()) && Objects.equals(getPerson(), that.getPerson()) && Objects.equals(getWorkflow(), that.getWorkflow()) && Objects.equals(getTimeTrack(), that.getTimeTrack()) && Objects.equals(getHistory(), that.getHistory());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getKey(), getDescription(), getDoneDate(), getStoryPoints(), isDeleted(), getDeletedTime(), getTaskType(), getProject(), getPerson(), getWorkflow(), getComments(), getTimeTrack(), getHistory());
+        return Objects.hash(getName(), getKey(), getDescription(), getDoneDate(), getStoryPoints(), isDeleted(), getDeletedTime(), getTaskType(), getProject(), getPerson(), getWorkflow(), getTimeTrack(), getHistory());
     }
 }

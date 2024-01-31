@@ -56,19 +56,4 @@ public class TaskController {
     public ResponseEntity<TaskDTO> changeWorkflowForTask(@RequestParam Long taskId, @RequestParam Long workFlowId) {
         return ResponseEntity.ok(taskService.changeWorkFlow(taskId, workFlowId));
     }
-
-    @PostMapping("comment")
-    public ResponseEntity<CommentDTO> saveComment(@RequestBody CommentDTO commentDTO, @RequestParam Long taskId) {
-        return ResponseEntity.ok(taskService.saveComment(commentDTO, taskId));
-    }
-
-    @PostMapping("comment/resources/{CommentId}")
-    public ResponseEntity<CommentDTO> saveCommentResources(@RequestParam List<MultipartFile> multipartFiles, @PathVariable Long CommentId) {
-        return ResponseEntity.ok(taskService.saveCommentResources(multipartFiles, CommentId));
-    }
-
-    @GetMapping("comments/{taskId}")
-    public ResponseEntity<List<CommentDTO>> getCommentsForTask(@PathVariable Long taskId) {
-        return ResponseEntity.ok(taskService.getCommentsForTask(taskId));
-    }
 }
