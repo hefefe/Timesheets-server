@@ -215,10 +215,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                         .taskName(task.getName())
                         .timeOfCompletion(getTimeOfCompletion(task, person))
                         .build())
-                .filter(task -> task.getTimeOfCompletion() >0)
+                .filter(task -> task.getTimeOfCompletion() > 0)
                 .collect(Collectors.toList());
-
-
     }
 
     private Long getTimeOfCompletion(TaskEntity task, PersonEntity person) {

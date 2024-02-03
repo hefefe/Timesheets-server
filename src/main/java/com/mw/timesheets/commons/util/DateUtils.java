@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 public class DateUtils {
 
     public static List<LocalDate> getRangeOfDays(LocalDate from, LocalDate to, boolean withBusinessDays, boolean withWeekends, boolean withHolidays) {
-
         Predicate<LocalDate> isHoliday = date -> (Arrays.stream(HolidayType.values()).map(holidayType -> holidayType.apply(date.getYear())).toList().contains(date)) && withHolidays;
 
         Predicate<LocalDate> isWeekend = date -> (date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY) && withWeekends;

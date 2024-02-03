@@ -64,11 +64,14 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public List<TaskGroupDTO> getTasksForProject(Long projectId) {
-        var project = projectRepository.findById(projectId).orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
+        var project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
         return project.getWorkflow().stream()
                 .map(workflow -> TaskGroupDTO.builder()
                         .workflowDTO(workflowMapper.toDto(workflow))
-                        .tasks(taskMapper.toDtos(workflow.getTasks().stream().filter(task -> !task.isDeleted()).collect(Collectors.toList())))
+                        .tasks(taskMapper.toDtos(workflow.getTasks()
+                                .stream()
+                                .filter(task -> !task.isDeleted()).collect(Collectors.toList())))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -109,8 +112,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO changeWorkFlow(Long taskId, Long workFlowId) {
-        var workFlow = workflowRepository.findById(workFlowId).orElseThrow(() -> new CustomErrorException("workflow does not exist", HttpStatus.BAD_REQUEST));
-        var task = taskRepository.findById(taskId).orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST));
+        var workFlow = workflowRepository.findById(workFlowId)
+                .orElseThrow(() -> new CustomErrorException("workflow does not exist", HttpStatus.BAD_REQUEST));
+        var task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new CustomErrorException("task does not exist", HttpStatus.BAD_REQUEST));
         var project = task.getProject();
         var isTaskDone = Iterables.getLast(project.getWorkflow()).getName().equals(workFlow.getName());
         if (securityUtils.getRole() == Roles.ROLE_USER && isTaskDone)
