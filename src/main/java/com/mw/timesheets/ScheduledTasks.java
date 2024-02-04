@@ -83,7 +83,7 @@ public class ScheduledTasks {
         var projects = projectRepository.findByEndOfSprintBeforeAndDeletedFalse(getSystemTime().plusHours(1));
         if (projects.isEmpty()) return;
         saveProgress(projects);
-        savePersonStatistics(projects);
+//        savePersonStatistics(projects);
         projectNextIteration(projects);
     }
 

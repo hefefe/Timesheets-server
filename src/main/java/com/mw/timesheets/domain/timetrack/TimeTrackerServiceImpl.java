@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -125,6 +126,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
         var historyMap = historyFromPerson.stream()
                 .filter(history -> history.getActivityDate().isBefore(to.plusDays(1)) && history.getActivityDate().isAfter(from.minusDays(1)))
                 .filter(predicate)
+
                 .map(historyMapper::toDto)
                 .peek(time -> time.setWorkFrom(time.getWorkFrom().minusHours(1)))
                 .peek(time -> time.setWorkTo(time.getWorkTo().minusHours(1)))
@@ -159,7 +161,7 @@ public class TimeTrackerServiceImpl implements TimeTrackService {
                         .map(TrackedDataDTO::getTime)
                         .reduce(0L, Long::sum))
                 .build()));
-        return history;
+        return history.stream().sorted(Comparator.comparing(TimeTrackerHistoryDTO::getDateOfActivity).reversed()).collect(Collectors.toList());
     }
 
     private Long getTimeDiffInMinutes(LocalTime from, LocalTime to) {

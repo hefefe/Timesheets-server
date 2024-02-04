@@ -237,7 +237,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private Long timeTracked(ProjectEntity project, LocalDate from, LocalDate to) {
-        return historyRepository.getTimeSpentBetweenDates(project.getId(), from, to);
+        return historyRepository.getTimeSpentBetweenDates(project.getId(), from.minusDays(1), to.plusDays(1));
     }
 
     private Integer getNumberOfEmployees(ProjectEntity project) {
@@ -310,10 +310,15 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         for (BurnDownDTO burndown : burnDownDTOS) {
 
-            if (holiday.contains(burndown.getDate()) || weekends.contains(burndown.getDate()) || burndown.getDate().equals(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()))) {
+            if (holiday.contains(burndown.getDate())
+                    || weekends.contains(burndown.getDate())
+                    || burndown.getDate().equals(project.getEndOfSprint().toLocalDate().minusWeeks(project.getSprintDuration().getDuration()))) {
                 burndown.setUncommitted(committedTasks);
             } else {
                 committedTasks -= subtrahend;
+                if(committedTasks < 1 && committedTasks >-1){
+                    committedTasks = 0;
+                }
                 burndown.setUncommitted(committedTasks);
             }
 
@@ -324,6 +329,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .mapToDouble(TaskEntity::getStoryPoints)
                     .sum();
             doneTasks -= doneAtDay;
+            if(doneTasks < 1 && doneTasks >-1){
+                doneTasks = 0;
+            }
             burndown.setCommitted(doneTasks);
         }
         return burnDownDTOS;

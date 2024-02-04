@@ -62,7 +62,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    @Transactional
     public List<TaskGroupDTO> getTasksForProject(Long projectId) {
         var project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomErrorException("project does not exist", HttpStatus.BAD_REQUEST));
